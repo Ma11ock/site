@@ -1,0 +1,38 @@
+#taskbar {
+    width: 75%;
+    display: flex;    
+    height:  200px;
+}
+
+#home {
+    width: 20%;
+}
+
+#git-server {
+    width: 20%;
+}
+
+
+#blog {
+    width: 20%;
+}
+
+
+#files {
+    width: 20%;
+}
+
+
+#other-posts {
+    width: 20%;
+}
+
+/*
+@font-face {
+    font-family: "Stickynotes";
+    src: url("../res/Stickynotes.otf") format("opentype");
+}
+*/
+
+@font-face { font-family: "MyCantarell"; src:
+    url("../res/Cantarell-Regular.otf") format("opentype"); }

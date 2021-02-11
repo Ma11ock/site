@@ -1,0 +1,252 @@
+@import './rgb.css';
+
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    justify-content: left;
+}
+
+h5 {
+    color: #fff;
+    font-size: 1.1em;
+}
+
+code {
+    font-size: 1em;
+}
+
+.src {
+    color: #00FF7F;
+}
+
+.org-ol {
+    color: #FFFFFF;
+    font-size: 1.2em;
+}
+
+pre {
+    color: #00FFFF;
+}
+
+
+.termout {
+    white-space: pre-wrap;
+}
+
+table p {
+    padding: 0;
+    margin: 0;
+}
+
+h4 {
+    color: #00FF88;
+}
+
+td {
+    color: #00FF88;
+    padding: 0;
+}
+
+th {
+    color: #00FFFF;
+    padding: 0;
+}
+
+tr td:nth-of-type(1) {
+    width: 20%;
+}
+
+tr td:nth-of-type(2) {
+    text-align: left;
+    justify-content: left;
+    margin-left: 0.2em;
+    float:left;
+    width: 80%
+}
+
+
+.emacs {
+    background-image:url(../res/bg.png);
+    border: 0.2em solid #285577;
+    /* positioning */
+    margin: 0 auto;
+    margin-top: 75px;
+    width: 75%;
+}
+
+#gnu-emacs {
+    width: 2%;
+}
+
+.ebar {
+    height: 1.3em;
+    background-color: #CCCCCC;
+    padding: 0;
+    margin : 0;
+    width: 100%;
+}
+
+.ebar-top {
+    border: 0.15em solid #F5F5F5;
+}
+
+.ebar-bot {
+    border: 0.15em solid #7A7A7A;
+}
+
+.ebar p {
+    padding: 0;
+    margin: 0;
+    font-size: 1.2em;
+    display: inline;
+    color: #00008B;
+}
+
+
+.ebar .title-red {
+    padding: 0;
+    margin: 0;
+    font-size: 0.8em;
+    color: #B22;
+}
+
+
+body {
+    font-family: Inconsolata, "Courier New", monospace;
+    -webkit-font-smoothing : none;
+    background-color: #C8C8C8;
+    background-image: url("../res/ui-back.png");
+    -moz-font-smoothing: never;
+}
+
+h1 {
+    font-size: 4em;
+    color: #b0c4de;
+    text-align: center;
+}
+
+title {
+    color: #00FFFF;
+}
+
+h2 {
+    color: #00FF7F;
+    font-size: 26pt;
+}
+
+h3 { font-size: 16pt; color: #B0C4DE; text-decoration: underline; }
+
+
+p {
+    color: #fff;
+    font-size: 16pt;
+    -moz-font-smoothing: never;
+}
+
+.headpar {
+    color:#00FFFF;
+}
+
+.headital {
+    color: #FFFF00;
+}
+
+a {
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 16pt;
+}
+
+ /* unvisited link */
+a:link {
+  color: #00FFFF;
+}
+
+/* visited link */
+a:visited {
+  color: #e916d5;
+}
+
+
+/* selected link */
+a:active {
+  color: blue;
+} 
+
+a:hover {
+    text-decoration: underline;
+}
+
+hr.vertical {
+    height:100%; /* you might need some positioning for this to work, see other questions about 100% height */
+    width:0;
+    border:1px solid black;
+}
+
+.seperator {
+  height: 100%;
+  width: 1px;
+  background: black;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  left: 50%;
+}
+
+.hddr {
+    width: 50%;
+    display: table-cell;
+    border:1px solid grey;
+}
+
+.fttr {
+    margin-top: auto;
+    margin: auto;
+    margin-top: 75px;
+    width: 75%;
+}
+
+ul {
+}
+
+ul li {
+    color: white;
+    font-size: 1.2em;
+    margin-left: 2em;
+}
+
+.code {
+    display: inline;
+}
+
+#links {
+    font-size: large;
+    text-align: center;
+    margin: auto;
+    max-width: 700px;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+#links img {
+    height: 1.25em;
+}
+
+a:hover img {
+    background: rgba(0, 0, 0, 0);
+    transition: .5s;
+    transform: scale(2, 2);
+}
+
+.ebar .last {
+    margin-right: 0%;
+    margin-left: 30%;
+    display: inline;
+}
+
+
+h6 {
+    font-size: 16pt;
+}

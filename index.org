@@ -1,0 +1,91 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:nil toc:t todo:t |:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/terminal.css" />
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 27.1 (Org mode 9.3)
+#+options: html-link-use-abs-url:nil
+#+options: html-scripts:t html-style:t
+#+options: html5-fancy:nil tex:t
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+description:
+#+keywords:
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+subtitle:
+#+infojs_opt:
+#+creator: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 27.1 (<a href="https://orgmode.org">Org</a> mode 9.3)
+#+latex_header:
+
+#+title: Ryan's Homepage
+#+date: <2021-02-10 Wed>
+#+author: Ryan Jeffrey
+#+email: ryan@ryanmj.xyz
+
+__PROMPT__ cat ~/intro.txt
+<!--TITLE HERE-->
+
+__PROMPT__ ls -lh
+#+BEGIN_EXPORT html
+<!--LS HERE-->
+<p>total 8.1K Words</p>
+#+END_EXPORT                    
+
+__PROMPT__ cat reason.txt
+
+#+BEGIN_EXPORT html
+
+<!--                                          
+ _____ _            ___           _           _        _       _ 
+|_   _| |__   ___  |_ _|_ __   __| |_   _ ___| |_ _ __(_) __ _| |
+  | | | '_ \ / _ \  | || '_ \ / _` | | | / __| __| '__| |/ _` | |
+  | | | | | |  __/  | || | | | (_| | |_| \__ \ |_| |  | | (_| | |
+  |_| |_| |_|\___| |___|_| |_|\__,_|\__,_|___/\__|_|  |_|\__,_|_|
+                                                                 
+ ____                 _       _   _                               _ 
+|  _ \ _____   _____ | |_   _| |_(_) ___  _ __     __ _ _ __   __| |
+| |_) / _ \ \ / / _ \| | | | | __| |/ _ \| '_ \   / _` | '_ \ / _` |
+|  _ <  __/\ V / (_) | | |_| | |_| | (_) | | | | | (_| | | | | (_| |
+|_| \_\___| \_/ \___/|_|\__,_|\__|_|\___/|_| |_|  \__,_|_| |_|\__,_|
+                                                                    
+ _ _                                                                       
+(_) |_ ___    ___ ___  _ __  ___  ___  __ _ _   _  ___ _ __   ___ ___  ___ 
+| | __/ __|  / __/ _ \| '_ \/ __|/ _ \/ _` | | | |/ _ \ '_ \ / __/ _ \/ __|
+| | |_\__ \ | (_| (_) | | | \__ \  __/ (_| | |_| |  __/ | | | (_|  __/\__ \
+|_|\__|___/  \___\___/|_| |_|___/\___|\__, |\__,_|\___|_| |_|\___\___||___/
+                                         |_|                               
+ _                       _                             
+| |__   __ ___   _____  | |__   ___  ___ _ __     __ _ 
+| '_ \ / _` \ \ / / _ \ | '_ \ / _ \/ _ \ '_ \   / _` |
+| | | | (_| |\ V /  __/ | |_) |  __/  __/ | | | | (_| |
+|_| |_|\__,_| \_/ \___| |_.__/ \___|\___|_| |_|  \__,_|
+                                                       
+     _ _               _               __              _   _          
+  __| (_)___  __ _ ___| |_ ___ _ __   / _| ___  _ __  | |_| |__   ___ 
+ / _` | / __|/ _` / __| __/ _ \ '__| | |_ / _ \| '__| | __| '_ \ / _ \
+| (_| | \__ \ (_| \__ \ ||  __/ |    |  _| (_) | |    | |_| | | |  __/
+ \__,_|_|___/\__,_|___/\__\___|_|    |_|  \___/|_|     \__|_| |_|\___|
+                                                                      
+ _                                                        
+| |__  _   _ _ __ ___   __ _ _ __    _ __ __ _  ___ ___   
+| '_ \| | | | '_ ` _ \ / _` | '_ \  | '__/ _` |/ __/ _ \  
+| | | | |_| | | | | | | (_| | | | | | | | (_| | (_|  __/_ 
+|_| |_|\__,_|_| |_| |_|\__,_|_| |_| |_|  \__,_|\___\___(_)
+-->                                                          
+#+END_EXPORT
+
+This site is a celebration of old computers and technology (or, what is old and nostalgic to me). Everything here is designed to look like a Linux desktop from between the years 2008-2012. That was the last time you could still feel 90's era optimism about technology (or the future in general), and the first time I used Linux (my father started me on Ubuntu 08.04 when I was 10).
+
+In current year it's impossible to feel anything but disgust and disappointment over the state of technology. Social media has enabled conformism in a way never before thought possible. Every electronic device is a government surveillance machine. Unix is _still_ using X11. Perhaps the Vi guy was right [[https://www.wired.com/2000/04/joy-2/][to go full AnPrim]]. 
+
+But this site at www.ryanmj.xyz _is not_ about that. Instead, this is a place to LARP and pretend it's still 2008. It is a place where we can live in a world before Jack Dorsey literally ruined everything.
+
+[[https://www.amazon.com/Atomised-Michel-Houellebecq/dp/0099283360][This website is dedicated to mankind.]]
