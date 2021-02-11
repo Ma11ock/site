@@ -4,12 +4,13 @@
 #+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
 #+options: timestamp:t title:nil toc:t todo:t |:t
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css/terminal.css" />
+#+HTML_HEAD: <script src="../scripts/main.js"></script>
 #+language: en
 #+select_tags: export
 #+exclude_tags: noexport
 #+creator: Emacs 27.1 (Org mode 9.3)
 #+options: html-link-use-abs-url:nil
-#+options: html-scripts:t html-style:t
+#+options: html-scripts:nil html-style:nil
 #+options: html5-fancy:nil tex:t
 #+html_doctype: xhtml-strict
 #+html_container: div
@@ -31,12 +32,32 @@
 #+email: ryan@ryanmj.xyz
 
 __PROMPT__ cat ~/intro.txt
-<!--TITLE HERE-->
+
+#+BEGIN_EXPORT html
+
+<pre id="main-page-title">
+
+ ____                    _     
+|  _ \ _   _  __ _ _ __ ( )___ 
+| |_) | | | |/ _` | '_ \|// __|
+|  _ <| |_| | (_| | | | | \__ \
+|_| \_\\__, |\__,_|_| |_| |___/
+       |___/                   
+ _   _                                             
+| | | | ___  _ __ ___   ___ _ __   __ _  __ _  ___ 
+| |_| |/ _ \| '_ ` _ \ / _ \ '_ \ / _` |/ _` |/ _ \
+|  _  | (_) | | | | | |  __/ |_) | (_| | (_| |  __/
+|_| |_|\___/|_| |_| |_|\___| .__/ \__,_|\__, |\___|
+                           |_|          |___/      
+</pre>
+
+
+#+END_EXPORT
 
 __PROMPT__ ls -lh
+
 #+BEGIN_EXPORT html
 <!--LS HERE-->
-<p>total 8.1K Words</p>
 #+END_EXPORT                    
 
 __PROMPT__ cat reason.txt

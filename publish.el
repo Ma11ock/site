@@ -22,32 +22,41 @@
 (defun do-ls-on-list (files)
   "Create ls-like output on a list FILES (string paths).
 Assumes that all files in FILES exist."
-  (goto-char (point-min))
-  (replace-string
-   "<!--LS HERE-->"
-   (concat
-    "<p>"
-    (cond ; Get the prefix if the ls -l output.
-     ((file-symlink-p (car files)) "lrwxrwxrwx 1")
-     ((file-directory-p (car files)) "drwxr-xr-x 2")
-      (t "-rw-r--r-- 1"))
-    " ryan ryan "
-    (replace-regexp-in-string
-     "\n$" " "
-     (shell-command-to-string (concat "find " (car files) " -name '*.org' -exec cat {} + | wc -c | numfmt --to=si")))
-    (shell-command-to-string (concat "ls -dl '--time-style=+%b %m %Y' "
-                                     (car files)
-                                     " | awk '{printf \"%s %2d %s \", $6, $7, $8} '" ))
-    "<a href=\""
-    (car files)
-    "\">"
-    (car files)
-    "</a></p>")))
+  (when (bound-and-true-p files)
+    (insert
+     (concat
+      "<p>"
+      (cond ; Get the prefix if the ls -l output.
+       ((file-symlink-p (car files)) "lrwxrwxrwx 1")
+       ((file-directory-p (car files)) "drwxr-xr-x 2")
+       (t "-rw-r--r-- 1"))
+      " ryan ryan "
+       (format "%4s "
+               (shell-command-to-string
+                (concat "find " (car files) " -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")))
+      (shell-command-to-string (concat "ls -dl '--time-style=+%b %m %Y' "
+                                       (car files)
+                                       " | awk '{printf \"%s %2d %s \", $6, $7, $8} '" ))
+      "<a href=\""
+      (car files)
+      "\">"
+      (car files)
+      "</a></p>\n"))
+    (do-ls-on-list (cdr files))))
 
 
 ;; Replace <!--LS HERE--> with ls output.
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
-                                              (do-ls-on-list (list "files" "posts"))))
+                                              "Create fake ls listing."
+                                              (goto-char (point-min))
+                                              (while (search-forward "<!--LS HERE-->" (point-max) t)
+                                                (kill-line)
+                                                (insert (concat
+                                                         "<p>total "
+                                                         (shell-command-to-string
+                                                          "find . -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")
+                                                         " Words</p>\n"))
+                                                (do-ls-on-list (list "files" "posts")))))
 
 
 ;; Sets up exporting defaults for org mode.
@@ -91,7 +100,13 @@ Assumes that all files in FILES exist."
          :htmlized-source nil
          :html-preamble nil
          :html-postamble nil)
-        ("all" :components ("posts" "css" "main" "res" "files"))))
+        ("scripts"
+         :base-directory "scripts/"
+         :publishing-directory "public/scripts"
+         :base-extension "js"
+         :recursive t
+         :publishing-function org-publish-attachment)
+        ("all" :components ("posts" "css" "main" "res" "files" "scripts"))))
 
 (provide 'publish)
 ;;; publish.el ends here

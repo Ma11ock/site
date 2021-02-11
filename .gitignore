@@ -55,3 +55,7 @@ flycheck_*.el
 
 
 # End of https://www.toptal.com/developers/gitignore/api/emacs
+
+res/
+public/
+files/
