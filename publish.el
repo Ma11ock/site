@@ -37,26 +37,32 @@
 (require 'ox-publish)
 (require 'ox-html)
 
-
-
 (setq site-dir (concat (getenv "HOME") "/src/site"))
 (setq export-site "/ssh:root@ryanmj.xyz:/var/www/underground/")
 
 (defun create-preamble (plist)
   "Insert preamble, PLIST is list of options."
-  (with-temp-buffer
-    (insert-file-contents "views/preamble.html") (buffer-string)))
+  (let* ((file-name (file-name-nondirectory (plist-get plist :output-file))))
+    (cond
+     ((string= file-name "index.html")
+      (with-temp-buffer
+        (insert-file-contents "views/preamble-i.html") (buffer-string)))
+     (t (insert-file-contents "views/preamble-e.html")))))
 
 (defun create-postamble (plist)
   "Insert postamble, PLIST is list of options."
-  (with-temp-buffer
-    (insert-file-contents "views/postamble.html") (buffer-string)))
+  (let* ((file-name (file-name-nondirectory (plist-get plist :output-file))))
+    (cond
+     ((string= file-name "index.html")
+      (with-temp-buffer
+        (insert-file-contents "views/postamble-i.html") (buffer-string)))
+     (t (insert-file-contents "views/postamble-e.html")))))
 
 ;; Replace __PROMPT__ with the actual prompt
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
                                               (goto-char (point-min))
                                               (while (search-forward "__PROMPT__" (point-max) t)
-                                                (kill-line)
+                                                (kill-backward-chars (length "__PROMPT__"))
                                                 (insert "@@html:<span style='color: var(--bisque4)'>ryan</span><span style='color:blue'>@</span><span style='color:yellow'>themainframe</span><span style='font-weight:bold'></span>@@"))))
 
 
@@ -103,11 +109,13 @@ Assumes that all files in FILES exist."
 (defun create-blogmap-entry (entry _style project)
   "Create an entry for the blogmap.
 One string for each ENTRY in PROJECT."
-       (format "@@html:<span class=\"archive-item\"><span class=\"archive-date\">@@ %s @@html:</span>@@ [[file:%s][%s]] @@html:</span>@@"
-               (format-time-string "%h %d, %Y"
-                                   (org-publish-find-date entry project))
-               entry
-               (org-publish-find-title entry project)))
+  (format "@@html:<p>-rw-r--r-- 1 ryan ryan @@ %4s [[file:%s][%s]] @@html:</p>@@"
+          (shell-command-to-string (format "wc -c < %s | numfmt --to=si | tr -d '\n'" (org-publish--expand-file-name entry project)))
+          ;(format-time-string "%h %d, %Y"
+          ;                    (org-publish-find-date entry project))
+          entry
+          (org-publish-find-title entry project)
+          ))
 
 (defun create-blogmap (title list)
   "Create the sitemap for the posts/ directory.
@@ -140,11 +148,14 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
          :recursive t
          :publishing-function org-html-publish-to-html
 
+         :html-preamble create-preamble
+         :html-postamble create-postamble
+
          ;; Sitemap.
          
          :auto-sitemap t
-         :sitemap-filename "blog.org"
-         :sitemap-title "Blog"
+         :sitemap-filename "sitemap.org"
+         :sitemap-title "Blog Map"
          :sitemap-style list
          :sitemap-sort-files anti-chronologically
          :sitemap-format-entry create-blogmap-entry
