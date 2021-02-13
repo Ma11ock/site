@@ -1,7 +1,46 @@
-(setq site-dir (concat (getenv "HOME") "/src/site"))
-(setq export-site "/ssh:root@ryanmj.xyz:/var/www/underground/")
+;;; package --- summary Website generator.
+
+;;; Copyright (C) Ryan Jeffrey 2021
+
+;;; Author: Ryan Jeffrey <ryan@ryanmj.xyz>
+;;; Created: 2021-02-12
+;;; Keywords: website org
+;;; Version: 0.1
+;;; Package-Requires: ((emacs "27.1"))
+;;; URL: https://gitlab.com/Mallock/site
+
+;;; License:
+
+;; This file is part of Ryan's Homepage.
+;;
+;; Ryan's Homepage is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Ryan's Homepage is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Ryan's Homepage.  If not, see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; This script uses org-mode to export my site.
+
+;;; Code:
+
 
 (require 'ox-publish)
+(require 'ox-html)
+
+
+
+(setq site-dir (concat (getenv "HOME") "/src/site"))
+(setq export-site "/ssh:root@ryanmj.xyz:/var/www/underground/")
 
 (defun create-preamble (plist)
   "Insert preamble, PLIST is list of options."
@@ -16,7 +55,9 @@
 ;; Replace __PROMPT__ with the actual prompt
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
                                               (goto-char (point-min))
-                                              (replace-string "__PROMPT__" "@@html:<span style='color: var(--bisque4)'>ryan</span><span style='color:blue'>@</span><span style='color:yellow'>themainframe</span><span style='font-weight:bold'></span>@@")))
+                                              (while (search-forward "__PROMPT__" (point-max) t)
+                                                (kill-line)
+                                                (insert "@@html:<span style='color: var(--bisque4)'>ryan</span><span style='color:blue'>@</span><span style='color:yellow'>themainframe</span><span style='font-weight:bold'></span>@@"))))
 
 
 (defun do-ls-on-list (files)
@@ -45,6 +86,7 @@ Assumes that all files in FILES exist."
     (do-ls-on-list (cdr files))))
 
 
+
 ;; Replace <!--LS HERE--> with ls output.
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
                                               "Create fake ls listing."
@@ -58,6 +100,25 @@ Assumes that all files in FILES exist."
                                                          " Words</p>\n"))
                                                 (do-ls-on-list (list "files" "posts")))))
 
+(defun create-blogmap-entry (entry _style project)
+  "Create an entry for the blogmap.
+One string for each ENTRY in PROJECT."
+       (format "@@html:<span class=\"archive-item\"><span class=\"archive-date\">@@ %s @@html:</span>@@ [[file:%s][%s]] @@html:</span>@@"
+               (format-time-string "%h %d, %Y"
+                                   (org-publish-find-date entry project))
+               entry
+               (org-publish-find-title entry project)))
+
+(defun create-blogmap (title list)
+  "Create the sitemap for the posts/ directory.
+Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
+    (concat "#+TITLE: " title "\n\n"
+          "\n#+begin_archive\n"
+          (mapconcat (lambda (li)
+                       (format "@@html:<li>@@ %s @@html:</li>@@" (car li)))
+                     (seq-filter #'car (cdr list))
+                     "\n")
+          "\n#+end_archive\n"))
 
 ;; Sets up exporting defaults for org mode.
 ;; "posts" are blog posts.
@@ -71,20 +132,40 @@ Assumes that all files in FILES exist."
          :publishing-function org-html-publish-to-html
          :html-preamble create-preamble
          :html-postamble create-postamble
-         :auto-sitemap -1)
+         :auto-sitemap nil)
         ("posts"
          :base-directory "posts"
          :base-extension "org"
          :publishing-directory "public/posts"
          :recursive t
          :publishing-function org-html-publish-to-html
-         :auto-sitemap t)
+
+         ;; Sitemap.
+         
+         :auto-sitemap t
+         :sitemap-filename "blog.org"
+         :sitemap-title "Blog"
+         :sitemap-style list
+         :sitemap-sort-files anti-chronologically
+         :sitemap-format-entry create-blogmap-entry
+         :sitemap-function create-blogmap
+
+         )
+        ("misc"
+         :base-directory "misc"
+         :base-extension "org"
+         :publishing-directory "public/misc"
+         :recursive t
+         :publishing-function org-html-publish-to-html
+         :html-preamble create-preamble
+         :html-postamble create-postamble
+         :auto-sitemap nil)
         ("css"
           :base-directory "css/"
           :base-extension "css"
           :publishing-directory "public/css"
           :publishing-function org-publish-attachment
-          :recursive t)
+          :recursive nil)
         ("res"
          :base-directory "res/"
          :publishing-directory "public/res"
