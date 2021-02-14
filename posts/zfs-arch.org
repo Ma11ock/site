@@ -1,0 +1,506 @@
+#+TITLE: Maximal Anti-Glow-In-The-Dark Setup for Arch Linux With ZFS
+#+AUTHOR: Ryan
+#+EMAIL: ryan@ryanmj.xyz
+#+OPTIONS: num:nil
+
+
+This guide will show you how to set up an Arch Linux (the best Linux distro) install on a root filesystem formatted with ZFS (the best file system), thus making this the best possible Linux install.
+
+Not only that, but this will also be the most /secure/ Linux install, since (nearly) everything will be encrypted, thus preventing any would-be glow-in-the-darks from accessing your data.
+* Imperfections
+Currently there are two problems that exist with this install (listed below). If you have solutions do not hesitate to [[mailto:ryan@ryanmj.xyz][email me]] your fix!
+
+Firstly, we need to have separate ~/boot~ and ~/~ partitions, which is fine, but at boot time you'll need to put in ~/boot~'s password twice. This is apparently fixable (even after install) I just haven't figured it out yet. 
+
+The current fix is to just have your computer on all the time.
+
+Secondly, there is this line from the [[https://wiki.archlinux.org/index.php/Install_Arch_Linux_on_ZFS][Arch Wiki]] that concerns me:
+#+BEGIN_QUOTE
+You can also create your ROOT dataset without having to specify mountpoint to / since GRUB will mount it to / anyway. That gives you possibility to boot into some old versions of root just by cloning it and putting as menuentry of GRUB.
+#+END_QUOTE
+
+The article goes on to show you how to make the dataset in this fashion, but I wasn't able to get it working! When it came time to mount the ZFS datasets to install the OS I was unable to mount ~zroot/ROOT/default~ to ~/~ at all, it would just fail. This might mean that I can't boot snapshots as ~/~ from GRUB, which would suck, and I'm not sure if this is fixable after install.  
+
+I could fix the first problem by using legacy datasets (they're called /legacy/... they must be bad!), but that would make me feel like I copped out. I'd much rather use the native, modern ZFS datasets instead.
+
+        
+* The ISO
+Unless you live in the future where ZFS has been re-released under the GPL then ZFS is not an official part of the Linux project, and so it is not included in the normal Arch Linux kernel package (or the normal install ISO). As a result, some extra install steps are necessary.
+
+If you /don't/ run Arch Linux, you can use [[https://github.com/eoli3n/archiso-zfs][this script]] on a running Arch Linux install image and it should make it ZFS ready (I have not tried it myself though). If you /do/ run Arch, then you can set up your own Arch Linux install image, which is preferable anyway because you can include any package you want in the ISO.
+
+To create the Arch Live ISO:
+#+begin_src shell
+  cp -r /usr/share/archiso/configs/releng archlive
+  cd archlive
+#+end_src
+
+Now, add this text to the bottom of ~pacman.conf~:
+#+begin_src conf
+[archzfs]
+Server = https://archzfs.com/$repo/x86_64
+Server = https://mirror.sum7.eu/archlinux/archzfs/$repo/x86_64
+Server = https://mirror.biocrafting.net/archlinux/archzfs/$repo/x86_64
+SigLevel = Optional TrustAll
+
+[archzfs-kernels]
+Server = https://end.re/$repo/
+SigLevel = Optional TrustAll
+
+#+end_src
+
+You can also (optionally) uncomment ~Color~ and add ~ILoveCandy~.
+
+Now you copy the ~pacman.conf~ to ~airootfs~:
+
+#+begin_src shell
+cp pacman.conf airootfs/etc/.
+#+end_src
+
+Now insert ~zfs-linux~ to the bottom of ~packages.x86_64~. Optionally, you can also insert the name of any Arch Linux package you want. I'm adding in ~joe~ and ~networkmanager~ to make the install a bit easier for me. You could even add a desktop environment, browser, etc. if you wanted to - in fact, that would make some of the later steps a bit easier, as you'd be able to copy-paste from the browser (make sure you also install a terminal emulator if you go that route... I made that mistake)!
+
+Now, we can build the image:
+
+#+begin_src shell
+sudo mkarchiso -v .
+#+end_src
+
+Now all that's left to do with the image is to write it to a disk or a USB stick. If you're using a thumb drive like me, you need to find out which device your USB is mapped to (using ~fdisk~). It will probably be something along the lines of ~/dev/sdX~ with ~X~ being some letter. For example, mine was mapped to ~/dev/sde~. Once you find that out, write to the drive with ~dd~.
+
+#+begin_src shell
+sudo dd if=out/archlinux*.iso of=/dev/sde bs=1M status=progress
+#+end_src
+
+Alternatively, you could use BalenaEtcher to write to the drive... but we've been using the terminal the entire time, might as well get across the finish line with it (plus we won't have to install any annoying AUR packages)!
+
+* Installing the OS
+Now comes the scary part... having to actually write to your disk.
+
+Once booted into the ISO you should make sure that the ZFS kernel module is loaded:
+
+#+begin_src shell
+lsmod | grep zfs -i
+#+end_src
+
+** Setting Up the Partitions
+*/THIS IS THE POINT OF NO RETURN/* btw.
+
+Just like with the USB stick earlier we need to find out which device your drive is mapped to. Mine was mapped to ~/dev/sda~, but make sure you adapt the following information to your device.
+
+To signify the beginning of a new era of ZFS we will wipe the disk of its partitioning information:
+
+#+begin_src shell
+sgdisk --zap-all /dev/sda
+#+end_src
+
+From that, we will create new partitions for our system to live on. This is what the drive will look like:
+
+| Device    | Size             | Type  | Mountpoint |
+|-----------+------------------+-------+------------|
+| /dev/sda1 | 512M             | fat32 | /boot/efi  |
+| /dev/sda2 | 5G               | ext4  | /boot      |
+| /dev/sda3 | 4G               | swap  | swap       |
+| /dev/sda4 | Rest of the disk | zfs   | /          |
+
+~/dev/sda1~, ~/dev/sda2~, and ~/dev/sda4~ should all be exactly as I have configured them here. ~/dev/sda3~, however, can be any size you want it to be (it's also the only partition you don't technically need). ZFS is rather memory hungry so I would recommend a hefty swap partition for any machine with <= 8G memory. 4G is a good number for a 16G machine, so you should adjust accordingly.
+
+To partition we will use ~gdisk~. Below is my usage of ~gdisk~ as an example. To adapt the output to your use, on every line that begins with `Last Sector', simply change the value to however large you want the partition to be (if you want a 8G swap partition, replace the `+4G' with `+8G'). For any empty lines, just press enter.
+
+#+begin_src shell
+  gdisk /dev/sda
+
+GPT fdisk (gdisk) version 1.0.5
+
+Partition table scan:
+  MBR: not present
+  BSD: not present
+  APM: not present
+  GPT: not present
+
+Creating new GPT entries in memory.
+
+Command (? for help): n
+Partition number (1-128, default 1):
+First sector (34-62914526, default = 2048) or {+-}size{KMGTP}:
+Last sector (2048-62914526, default = 62914526) or {+-}size{KM
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): ef00
+Changed type of partition to 'EFI system partition'
+
+Command (? for help): n
+Partition number (2-128, default 2):
+First sector (34-62914526, default = 1050624) or {+-}size{KMGTP}:
+Last sector (1050624-62914526, default = 62914526) or {+-}size{KMGTP}: +5G
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300):
+Changed type of partition to 'Linux filesystem'
+
+Command (? for help): n
+Partition number (3-128, default 3):
+First sector (34-62914526, default = 11536384) or {+-}size{KMGTP}:
+Last sector (11536384-62914526, default = 62914526) or {+-}size{KMGTP}: +4G
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): 8200
+Changed type of partition to 'Linux swap'
+
+Command (? for help): n
+Partition number (4-128, default 4):
+First sector (34-62914526, default = 19924992) or {+-}size{KMGTP}:
+Last sector (19924992-62914526, default = 62914526) or {+-}size{KMGTP}:
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): bf00
+Changed type of partition to 'Solaris root'
+
+Command (? for help): w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to /dev/sda.
+The operation has completed successfully.
+#+end_src
+
+You should get a disk that looks something like this (from ~fdisk~):
+
+#+begin_src shell
+Device        Start      End  Sectors  Size Type
+/dev/sda1      2048  1050623  1048576  512M EFI System
+/dev/sda2   1050624 11536383 10485760    5G Linux filesystem
+/dev/sda3  11536384 19924991  8388608    4G Linux swap
+/dev/sda4  19924992 62914526 42989535 20.5G Solaris root
+#+end_src
+
+** Creating ~/boot~, ~/boot/efi~, and ~swap~
+*** ~/boot/efi~
+That was the hard part. The next step is to create the auxiliary filesystems (everything except ~/~). To crate the EFI system partition:
+
+#+begin_src shell
+mkfs.fat -F32 /dev/sda1
+#+end_src
+
+Note the `1' at the end of ~/dev/sda1~.
+*** ~/boot~
+Now to set up the encrypted ~/boot~ partition, which needs to be a separate partition from ~/~ due to GRUB not being completely compatible with ZFS. 
+
+#+begin_src shell
+cryptsetup luksFormat --type luks1 /dev/disk/by-id/xxx
+#+end_src
+
+Replace the `xxx' at the end of the command with the ID of ~/dev/sda2~ (remember, you can use tab completion on filepaths). ID's usually have a `partX' at the end which makes it easier to figure out. Put in a nice, strong password to encrypt the partition. Also, it is very imperative that the encryption type be ~luks1~, otherwise the system will not boot.
+
+Now to bring up the newly encrypted partition and format it:
+
+#+begin_src shell
+cryptsetup open /dev/disk/by-id/xxx cboot
+mkfs.ext4 /dev/mapper/cboot
+#+end_src
+
+Obviously, replace `xxx' with your disk ID. `cboot' at the end there is what I'm deciding to call that partition, you can give it any name you wish.
+*** ~swap~
+
+#+begin_src shell
+cryptsetup open --type plain --key-file=/dev/urandom /dev/disk/by-id/xxx cswap
+mkswap /dev/mapper/cswap
+swapon /dev/mapper/cswap
+#+end_src
+
+Now replace ~/dev/disk/by-id/xxx~ with the ID of ~/dev/sda3~. Like with the boot partition you can name the partition whatever you want, just replace `cswap' with your desired name.
+** ZFS root Partition, or ~/~  
+This is what we've been waiting for...
+*** ~zpool~ creation 
+
+First we must determine the ~ashift~ value for our ~zpool~:
+
+#+begin_src shell
+lsblk -S -o NAME,PHY-SEC
+#+end_src
+
+| Value | Ashift |
+|-------+--------|
+| 512   |      9 |
+| 4k    |     12 |
+
+
+#+begin_src shell
+zpool create -f -o ashift=12 -o autoexpand=on -R /mnt \
+             -O acltype=posixacl \
+             -O atime=off \
+             -O xattr=sa        \
+             -O dnodesize=legacy    \
+             -O normalization=formD \
+             -O mountpoint=none     \
+             -O canmount=off        \
+             -O devices=off     \
+             -O encryption=aes-256-gcm  \
+             -O keyformat=passphrase    \
+             -O keylocation=prompt  \
+         zroot /dev/disk/by-id/xxx
+#+end_src
+
+~zroot~ is what I've decided to call this ~zpool~.
+**** Customization
+***** ~ashift~
+The ashift values are for performance and your system will work if you get them 'wrong'. In fact, the Arch Wiki recommends always using ~ashift=12~ for compatibility with other ~zpools~.
+***** ~atime~
+It's almost never useful to know the access time of a file so I just disable it altogether. It serves only to slow down your computer, especially when using a CoW filesystem like ~zfs~. Some would say this messes up Mail programs such as ~mutt~, but I have a fix for this.
+
+If you still want atimes, swap ~atime=off~ for ~atime=on~. I believe this is the equivalent to 'stricatime' on other filesystems.
+
+You could also go for 'relatime', where an access time is only updated if the old access time is more than a day old, or if the modification time or change time are more recent. To do this, simply swap any line you have involving atime with ~relatime=on~.
+***** Compression
+This is pretty useless on most people's root filesystem because most of your data is probably media, which is already compressed. This will likely only slow down your system and not save you much space. Nevertheless, if you want to have it, simply add this line: ~-O compression=lz4~.
+
+*** ~dataset~ creation
+#+begin_src shell
+  # General datasets
+zfs create -o mountpoint=none zroot/data
+zfs create -o mountpoint=none zroot/ROOT
+zfs create -o mountpoint=/ -o canmount=noauto zroot/ROOT/default
+# Home datasets
+zfs create -o mountpoint=/home zroot/data/home
+zfs create -o mountpoint=/root zroot/data/home/root
+zfs create -o mountpoint=/home/ryan zroot/data/home/ryan
+zfs create -o mountpoint=/home/ryan/.local zroot/data/home/ryan/local
+zfs create -o mountpoint=/home/ryan/.local/share zroot/data/home/ryan/local/share 
+# If you're a degenerate who plays vidya
+zfs create -o mountpoint=/home/ryan/.local/share/Steam zroot/data/home/ryan/local/share/Steam
+zfs create -o mountpoint=/home/ryan/.cache zroot/data/home/ryan/cache 
+zfs create -o mountpoint=/home/ryan/.cache/yay zroot/data/home/ryan/cache/yay
+# If you want to use mailclients such as mutt
+zfs create -o mountpoint=/home/ryan/.Maildir zroot/data/home/ryan/mail
+# System datasets
+zfs create -o mountpoint=/var -o canmount=off zroot/var
+zfs create zroot/var/log
+zfs create -o mountpoint=/var/lib -o canmount=off zroot/var/lib
+zfs create zroot/var/lib/libvirt
+zfs create zroot/var/lib/docker
+
+# Set zpool as bootable
+zpool set bootfs=zroot/ROOT/default zroot
+#+end_src
+*** Mounting 
+Export the ~zpool~ (this is required), then import it (no, the ~/dev/disk/by-id~ isn't a mistake) and mount.
+
+#+begin_src shell
+  zpool export zroot
+  zpool import -d /dev/disk/by-id -R /inst zroot
+  zfs load-key zroot
+  zfs mount zroot/ROOT/default
+  zfs mount -a
+#+end_src
+
+If you have errors during this step, try exporting ~zroot~ again and then reimporting it (to a new directory, i.e. replace ~/inst~) with different settings. ~ls~ the mountpoint to make sure it's empty. You can also ~df~ the mountpoint after mounting, and if the output says ~airootfs~ there has been an error, it should be ~zroot/ROOT/default~.
+
+If all is good we need to mount the auxiliary filesystems:
+
+#+begin_src shell
+mkdir /inst/boot
+mount /dev/mapper/cboot /inst/boot
+mkdir /inst/boot/efi
+mount /dev/sda1 /inst/boot/efi
+#+end_src
+
+Lastly, we need to copy the ZFS cache:
+
+#+begin_src shell
+cp /etc/zfs/zpool.cache /inst/etc/zfs/zpool.cache
+#+end_src
+
+If there is an error about the cache file not existing, then:
+
+#+begin_src shell
+zpool set cachefile=/etc/zfs/zpool.cache zroot
+cp /etc/zfs/zpool.cache /inst/etc/zfs/zpool.cache
+#+end_src
+
+*** ~pacstrap~
+If you haven't already we need to set up an internet connection. If you followed my instructions to crate an Arch ISO then yours should have NetworkManager, so we can set up networking like so:
+
+#+begin_src shell
+systemctl start NetworkManager
+nmcli device wifi connect "ssid" password "networkpassword"
+#+end_src
+
+(Obviously replace ssid with your ssid etc. etc.)
+
+~pacman~ will fail to get the zfs-arch repos due to a gpg-related error. We can fix this by importing the arch-zfs gpg key like so:
+
+#+begin_src shell
+curl https://archzfs.com/archzfs.gpg > archzfs.gpg
+pacman-key --add archzfs.gpg
+#+end_src
+
+Now we can ~pacstrap~ (make sure to replace ~intel-ucode~ with ~amd-ucode~ if you have an AMD processor)!
+
+#+begin_src shell
+  pacstrap -i /inst base base-devel zfs-linux linux-headers linux-firmware intel-ucode zsh go git python cmake networkmanager joe emacs
+  cp /etc/pacman.conf /inst/etc/.
+#+end_src
+
+*** ~fstab~ and ~crypttab~
+To generate the fstab file:
+
+#+begin_src shell
+  genfstab -U -p /inst >> /inst/etc/fstab
+#+end_src
+
+Edit the ~/inst/etc/fstab~ file and remove any entries related to ZFS (we will mount them the ZFS way). Also, replace the UUID's of the ~cswap~ and ~cboot~ partitions with ~/dev/mapper/cswap~ and ~/dev/mapper/cboot~ respectively. 
+
+Sample fstab:
+#+begin_src 
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+# /dev/mapper/cboot
+/dev/mapper/cboot	/boot     	ext4      	rw,relatime	0 2
+
+# /dev/sda1
+UUID=CE42-9249      	/boot/efi 	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 2
+
+# /dev/mapper/cswap
+/dev/mapper/cswap	none      	swap      	defaults  	0 0
+
+#+end_src
+
+Lastly, edit ~/inst/etc/crypttab~ and add this line to the bottom:
+
+#+begin_src
+cswap          /dev/disk-by-id/xxx                                    /dev/urandom            swap,cipher=aes-cbc-essiv:sha256,size=256
+#+end_src
+
+You will need to insert the id of your swap partition manually. 
+
+Insert a new line at the very bottom of the file (or just make sure it ends with an empty line) and save.
+
+*** Configuring the System
+To begin configuration of the system we need to ~arch-chroot /inst~.
+
+**** Set Up the Kernel 
+Edit the file ~/etc/mkinitcpio.conf~, delete the line that begins with `HOOKS=' and replace it with 
+
+#+begin_src 
+HOOKS=(base udev autodetect modconf block keyboard zfs encrypt filesystems)
+#+end_src
+
+Then run:
+
+#+begin_src shell
+mkinitcpio -P
+#+end_src
+
+
+**** GRUB
+Edit the file ~/etc/default/grub~ and replace `GRUB_CMDLINE_LINUX' with:
+
+#+begin_src 
+GRUB_CMDLINE_LINUX="zfs=zroot/ROOT/default rw cryptdevice=/dev/sda2:cboot"
+#+end_src
+
+Uncomment ~GRUB_ENABLE_CRYPTODISK=y~ and save the file. To install GRUB:
+
+#+begin_src shell
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
+#+end_src
+
+**** Misc
+Remember to:
+- Set the hostname in ~/etc/hostname~
+- Generate locales
+- Create a user and set the password
+- Set the root password
+- Set up your timezone and enable ~ntpd~
+- Change your shell to ZSH (THIS IS REQUIRED)
+- Install ~X~ and ~pulseaudio~ (make sure you have the right ~X~ drivers [I made that mistake...])
+- Set up a ~yay~/~AUR~ managers
+- enable systemd services (NM, sshd, etc.)
+
+
+**** Configure ZFS
+
+The last bit of required ZFS configuration is to set it up for automounting and autoconfiguring. 
+
+#+begin_src shell
+# Set the hostid
+zgenhostid $(hostid)
+# Set up the cachefile and auto-import it
+zpool set cachefile=/etc/zfs/zpool.cache zroot
+systemctl enable zfs-import-cache
+systemctl enable zfs-import.target
+# Set up zed
+mkdir /etc/zfs/zfs-list.cache/
+touch /etc/zfs/zfs-list.cache/zroot
+ln -s /usr/lib/zfs/zed.d/history_event-zfs-list-cacher.sh /etc/zfs/zed.d
+systemctl enable zfs-zed.service
+systemctl enable zfs.target
+#+end_src
+
+Now start ~zed~ through the command line, and ~cat~ ~/etc/zfs/zfs-list.cache/zroot~. It should be empty, to populate it, make a change to the filesystem:
+
+#+begin_src shell
+zfs set atime=on zroot/data/home/ryan/mail
+#+end_src
+
+~cat~ the same file again and now it should be full. If you don't have the mail dataset, just make that same change to any other dataset, then just undo it by setting ~atime=off~ again.
+
+**** Restart
+*/DO NOT SKIP THIS/*
+Double check everything first!
+#+begin_src shell
+exit # the arch-chroot
+umount /inst/boot -R
+zfs umount -a
+zpool export zroot
+swapoff -a
+#+end_src
+
+*NOW* you may reboot.
+
+* Post-Install Configuration
+NOTE: All of the following commands new to run as root.
+#+begin_src conf
+** Scrub
+Scrub is a feature of ZFS to prevent bitrot, a phenonenon in which a drive wears out and some of the data on it slowly becomes corrupted. ZFS has the ability to scan for and prevent this from happening, a feature called 'scrub'. To preiodically scrub your zpool you will first need to set up an AUR helper, I'll be using ~yay~. Then, enable the systemd service like so:
+
+#+begin_src shell
+yay -Syu systemd-zpool-scrub
+systemctl enable zpool-scrub@zroot.timer
+#+end_src
+** zfs-arch gpg key
+Having the ~SigLevel TrustAll~ at the bottom of ~pacman.conf~ is rather unsafe, so we're going to set up archzfs's pgp key.
+The following steps include:
+- Setting up the Arch Linux packages keyring
+- Set up a new keyserver (if necessary)
+- Add the archzfs pgp key and verify it
+
+#+begin_src shell
+pacman-key --init
+pacman-key --populate archlinux
+pacman-key -r DDF7DB817396A49B2A2723F7403BD972F75D9D76
+pacman-key --lsign-key DDF7DB817396A49B2A2723F7403BD972F75D9D76
+pacman -Syu
+#+end_src
+
+If the third step fails then you can append the following line to ~/etc/pacman.d/gnupg/gpg.conf~:
+
+#+begin_src 
+keyserver hkp://ipv4.pool.sks-keyservers.net:11371
+#+end_src
+
+You should also delete any other line that starts with 'keyserver'. If that fails too, look up other trusted keyservers to try.
+
+* Fin
+At this point your ZFS-on-root operating system is fully configured and ready to go. Make sure you know how ZFS works if you're going to continue using it and to make full use of the filesystem's features. I recommend reading the articles below for more information. Now have fun with your future-proofed system!
+
+* Sources
+Most of the information in this comes from other sources online rather than myself. Here are the ones that were the most helpful (in no particular order):
+
+- [[https://artnoi.com/blog/zfsarch.html][Artnoi's Arch ZFS on Root]]
+- [[https://wiki.archlinux.org/index.php/Install_Arch_Linux_on_ZFS][Arch Wiki's ZFS Install Guide]]
+- [[https://wiki.archlinux.org/index.php/User:Altercation/Bullet_Proof_Arch_Install][Arch Wiki's User Guide to Installing Btrfs]]
+- [[https://www.pavelkogan.com/2014/05/23/luks-full-disk-encryption/][Pavel Kogan's Article on Full Disk Encryption]]
+- [[https://wiki.archlinux.org/index.php/ZFS][Arch Wiki's Article on ZFS]]
+- [[https://wiki.archlinux.org/index.php/Archiso][Arch Wiki's Guide on Arch ISOs]]
+- [[https://wiki.archlinux.org/index.php/Pacman/Package_signing][Arch Wiki's Article on GPG Keys In ~pacman~]]

@@ -1,0 +1,25 @@
+#+TITLE: Arcus Linux is the True Collapse OS
+#+AUTHOR: Ryan
+#+EMAIL: ryan@ryanmj.xyz
+#+OPTIONS: num:nil
+
+As of writing this it is currently January 09, 2021. Deus Ex wasn't supposed to happen for another 31 years (please play a different game), I was supposed to be able to get a job and save money and stockpile before we go full neolib dystopia. As of writing this, it is January 09, 2052. 
+
+There's a lot of panic on the TL right now, a lot of people correctly identifying this as the end of the internet as it's existed until now. I predict that under the Biden administration internet surveillance will reach an all time high; anything to "de-Trumpify" America. 
+
+If you want to live a reasonably modern lifestyle in Biden's America you're going to have to revert the technology and techniques by about 10-15 years; that means buying pre-Intel Management Engine/AMD Platform Security Processor x86 based processors, or just not going x86 at all. The alternative is getting an old PowerPC computer such as a Powermac G5 or an iBook G4. 
+
+ Being based in the Year of our Lord Current Year REQUIRES:
+- Not using Botnet operating systems like Winblows or Mac
+- Not using Botnet services like Netflix
+- Using old computers like a PowerMac G5 or a pre-2008 Intel
+- VPN (preferably hosted outside of the American Empire / Sphere of Influence)
+- Aliases. Do as your mom told you and never give out your personal info. 
+
+If you're going to say something based MAKE SURE YOU ARE DOING ALL OF THE ABOVE while doing it. 
+
+Yes, this means that the only games you can play are Doom, Tremulous, and Deus Ex. Problem?
+
+
+* Arcus Linux as a Collapse OS 
+When someone in "our thing" says "the collapse" they want to invoke the image of Rome being sacked by Goths; or New York being sacked by Goths (middle-westerners (literally Germanics)). Unfortunately, this is unlikely to happen in America anytime soon. The reality is that, for the near future, what will instead happen is consolidation. The current American elite will be at their peak of power under Biden, and Arcus was made to cope with that reality. Arcus Linux won't help you rebuild civilization with a Z80 processor but it will help you own the glowies. 
