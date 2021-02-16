@@ -3,7 +3,6 @@
 #+EMAIL: ryan@ryanmj.xyz
 #+OPTIONS: num:nil
 
-
 I used [[https://youtu.be/9zP7qooM4pY][Luke Smith's video on setting up and email server]], and although it got me 90% of the way there, I encountered a couple of snags that he was able to avoid for whatever reason. 
 
 
