@@ -123,7 +123,7 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
     (concat "#+TITLE: " title "\n\n"
           "\n#+begin_archive\n"
           (mapconcat (lambda (li)
-                       (format "@@html:<li>@@ %s @@html:</li>@@" (car li)))
+                       (format "%s" (car li)))
                      (seq-filter #'car (cdr list))
                      "\n")
           "\n#+end_archive\n"))
