@@ -63,7 +63,7 @@
                                               (goto-char (point-min))
                                               (while (search-forward "__PROMPT__" (point-max) t)
                                                 (kill-backward-chars (length "__PROMPT__"))
-                                                (insert "@@html:<span style='color: var(--bisque4)'>ryan</span><span style='color:blue'>@</span><span style='color:yellow'>themainframe</span><span style='font-weight:bold'></span>@@"))))
+                                                (insert "@@html:<span class=\"prompt1\">ryan</span><span class=\"prompt2\">@</span><span class=\"prompt3\">themainframe</span><span class=\"prompt4\"></span>@@"))))
 
 
 (defun do-ls-on-list (files)

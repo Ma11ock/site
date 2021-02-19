@@ -1,6 +1,30 @@
 @import './rgb.css';
 @import './main.css';
 
+/* unvisited link */
+a:link {
+  color: var(--dodger_blue4);
+  text-shadow: 0 0 4px var(--dodger_blue4);
+}
+
+/* visited link */
+a:visited {
+  color: var(--dark_orchid2);
+  text-shadow: 0 0 4px var(--dark_orchid2);
+}
+
+/* mouse over link */
+a:hover {
+  color: var(--green2);
+  text-shadow: 0 0 4px var(--green2);
+}
+
+/* selected link */
+a:active {
+  color: var(--dodger_blue4);
+  text-shadow: 0 0 4px var(--dodger_blue4);
+}
+
 #main-page-title {
   margin: 0 auto;
   padding: 0;
@@ -18,7 +42,7 @@ h4 {
   margin-top: 0;
   color: white;
   font-color: white;
-  font-family: "Cantarell", "MyCantarell";
+  font-family: "Cantarell", Sans-Serif;
   font-size: 0.8em;
 }
 
@@ -90,7 +114,28 @@ h4 {
   margin: 0 auto;
   padding: 0;
   white-space: pre-wrap;
-  color: var(--grey);
+  color: var(--white);
+  text-shadow: 0 0 4px var(--white);
+}
+
+.prompt1 {
+  color: var(--bisque4);
+  text-shadow: 0 0 4px var(--bisque4);
+}
+
+.prompt2 {
+  color: var(--blue);
+  text-shadow: 0 0 4px var(--blue);
+}
+
+.prompt3 {
+  color: var(--yellow);
+  text-shadow: 0 0 4px var(--yellow);
+}
+
+.prompt4 {
+  font-weight: bold;
+  text-shadow: 0 0 4px var(--white);
 }
 
 h2 {
@@ -99,11 +144,13 @@ h2 {
 }
 
 body {
-  /*background-image: url(../res/back01.jpg);*/
-  background: #2d6189;
+  background-color: #2d6189;
+  background-image: url('../res/lain.jpg');
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
   background-size: cover;
   background-repeat: no-repeat;
-  font-family: Inconsolata, "Courier New", monospace;
+  font-family: "Hasklig", "Inconsolata", "Courier New", monospace;
   font-size: 1.1em;
   -webkit-font-smoothing : none;
   -moz-font-smoothing: never;
