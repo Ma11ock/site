@@ -145,7 +145,7 @@ h2 {
 
 body {
   background-color: #2d6189;
-  background-image: url('../res/lain.jpg');
+  background-image: url('../res/back.jpg');
   background-repeat: no-repeat; /* Do not repeat the image */
   background-size: cover; /* Resize the background image to cover the entire container */
   background-size: cover;
