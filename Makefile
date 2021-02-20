@@ -10,6 +10,10 @@ publish: publish.el
 	@echo "Publishing... with current Emacs configurations."
 	emacs --batch --load publish.el --funcall org-publish-all
 
+force: publish.el
+	@echo "Publish... with configuration and force."
+	emacs --batch --load publish.el -e '(org-publish-all t)'
+
 publish_no_init: publish.el
 	@echo "Publishing... with --no-init."
 	emacs --batch --no-init --load publish.el --funcall org-publish-all

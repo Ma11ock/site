@@ -128,6 +128,12 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
                      "\n")
           "\n#+end_archive\n"))
 
+(defun force-main-publish ()
+  "Force evaluation of main project."
+  (org-publish "main" t)
+  (org-publish "posts" t)
+  (org-publish-all))
+
 ;; Sets up exporting defaults for org mode.
 ;; "posts" are blog posts.
 ;; "main" is for index files like index.html, blog.html, etc.
