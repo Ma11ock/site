@@ -44,19 +44,21 @@
   "Insert preamble, PLIST is list of options."
   (let* ((file-name (file-name-nondirectory (plist-get plist :output-file))))
     (cond
-     ((string= file-name "index.html")
+     ;;((string= file-name "index.html")
+     (t
       (with-temp-buffer
-        (insert-file-contents "views/preamble-i.html") (buffer-string)))
-     (t (insert-file-contents "views/preamble-e.html")))))
+        (insert-file-contents "views/preamble-i.html") (buffer-string))))))
+     ;;(t (insert-file-contents "views/preamble-e.html")))))
 
 (defun create-postamble (plist)
   "Insert postamble, PLIST is list of options."
   (let* ((file-name (file-name-nondirectory (plist-get plist :output-file))))
     (cond
-     ((string= file-name "index.html")
+     ;;((string= file-name "index.html")
+     (t
       (with-temp-buffer
-        (insert-file-contents "views/postamble-i.html") (buffer-string)))
-     (t (insert-file-contents "views/postamble-e.html")))))
+        (insert-file-contents "views/postamble-i.html") (buffer-string))))))
+     ;;(t (insert-file-contents "views/postamble-e.html")))))
 
 ;; Replace __PROMPT__ with the actual prompt
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
@@ -72,7 +74,7 @@ Assumes that all files in FILES exist."
   (when (bound-and-true-p files)
     (insert
      (concat
-      "<p>"
+      "@@html:<p>"
       (cond ; Get the prefix if the ls -l output.
        ((file-symlink-p (car files)) "lrwxrwxrwx 1")
        ((file-directory-p (car files)) "drwxr-xr-x 2")
@@ -84,11 +86,9 @@ Assumes that all files in FILES exist."
       (shell-command-to-string (concat "ls -dl '--time-style=+%b %m %Y' "
                                        (car files)
                                        " | awk '{printf \"%s %2d %s \", $6, $7, $8} '" ))
-      "<a href=\""
-      (car files)
-      "\">"
-      (car files)
-      "</a></p>\n"))
+      "@@"
+      (format "[[file:%s]]" (car files))
+      "@@html:</p>@@\n"))
     (do-ls-on-list (cdr files))))
 
 
@@ -98,24 +98,25 @@ Assumes that all files in FILES exist."
                                               "Create fake ls listing."
                                               (goto-char (point-min))
                                               (while (search-forward "<!--LS HERE-->" (point-max) t)
-                                                (kill-line)
+                                                (kill-whole-line)
                                                 (insert (concat
-                                                         "<p>total "
+                                                         "@@html:<p>total "
                                                          (shell-command-to-string
                                                           "find . -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")
-                                                         " Words</p>\n"))
-                                                (do-ls-on-list (list "files" "posts")))))
+                                                         " Words</p>@@\n"))
+                                                (do-ls-on-list (list "files" "posts" "software.org")))))
 
 (defun create-blogmap-entry (entry _style project)
   "Create an entry for the blogmap.
 One string for each ENTRY in PROJECT."
-  (format "@@html:<p>-rw-r--r-- 1 ryan ryan @@ %4s [[file:%s][%s]] @@html:</p>@@"
-          (shell-command-to-string (format "wc -c < %s | numfmt --to=si | tr -d '\n'" (org-publish--expand-file-name entry project)))
-          ;(format-time-string "%h %d, %Y"
-          ;                    (org-publish-find-date entry project))
-          entry
-          (org-publish-find-title entry project)
-          ))
+  (if (string= entry "index.org")
+      ""
+    (format "@@html:<p>-rw-r--r-- 1 ryan ryan @@ %4s [[file:%s][%s]] @@html:</p>@@"
+            (shell-command-to-string (format "wc -c < %s | numfmt --to=si | tr -d '\n'" (org-publish--expand-file-name entry project)))
+                                        ;(format-time-string "%h %d, %Y"
+                                        ;                    (org-publish-find-date entry project))
+            entry
+            (org-publish-find-title entry project))))
 
 (defun create-blogmap (title list)
   "Create the sitemap for the posts/ directory.
@@ -166,7 +167,6 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
          :sitemap-sort-files anti-chronologically
          :sitemap-format-entry create-blogmap-entry
          :sitemap-function create-blogmap
-
          )
         ("misc"
          :base-directory "misc"

@@ -1,0 +1,48 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:nil toc:t todo:t |:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/terminal.css" />
+#+HTML_HEAD: <script src="scripts/main.js"></script>
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 27.1 (Org mode 9.3)
+#+options: html-link-use-abs-url:nil
+#+options: html-scripts:nil html-style:nil
+#+options: html5-fancy:nil tex:t
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+description:
+#+keywords:
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_head:
+#+html_head_extra:
+#+subtitle:
+#+infojs_opt:
+#+creator: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 27.1 (<a href="https://orgmode.org">Org</a> mode 9.3)
+#+latex_header:
+
+#+title: Software I use
+#+date: <2021-02-10 Wed>
+#+author: Ryan Jeffrey
+#+email: ryan@ryanmj.xyz
+
+
+__PROMPT__ cat ~/config.html
+
+My machines all run a variant of Arch Linux (either Arch itself, or Parabola, etc.). My configuration is based around Emacs which I use as a Unix Userland replacement where I can.
+
+When I began learning how to use a computer I used the ~joe~ text editor. It's an excellent terminal-based editor with Wordstar keybindings. However it isn't extensible (it has no 'joescript', nothing like vimscript or elsip), this makes pretty unusable for things like HTML editing where extensibility goes a long way in terms of QoL. In late 2018 I used VIM and hated it. In May 2019 I switched to Emacs.
+
+The more I used Emacs the more I began to believe in its mission. The whole idea behind Emacs is that it's a Unix Userland replacement based on LISP. It ultimately fails at this because of how slow, legacy, and occasionally inflexible it is. That being said, it's an interesting idea and I'd like to see a more modern attempt at that concept some day.
+
+For email is ~mu4e~ and for my RSS feed I use ~elfeed~. Lately, I've been trying to ween myself off of file managers by replacing ~nemo~ with ~dired~.
+
+My web browser is the ~red cat shill browser~.
+
+My window manager is ~bspwm~ (this is the most likely thing to change), I switch window managers every six months because I'm never satisfied with them. Each window manager or desktop environment I try has its own issues with ~bspwm~ being a bit buggy and not always cooperating with other programs (especially polybar).
+

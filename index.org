@@ -51,14 +51,11 @@ __PROMPT__ cat ~/intro.txt
                            |_|          |___/      
 </pre>
 
-
 #+END_EXPORT
 
 __PROMPT__ ls -lh
 
-#+BEGIN_EXPORT html
 <!--LS HERE-->
-#+END_EXPORT                    
 
 __PROMPT__ cat reason.txt
 
