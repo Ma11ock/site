@@ -201,7 +201,7 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
         ("res"
          :base-directory "res/"
          :publishing-directory "public/res"
-         :base-extension "png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|otf\\|ttf"
+         :base-extension "png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|otf\\|ttf\\|ico"
          :recursive t
          :publishing-function org-publish-attachment)
         ("files"
