@@ -56,6 +56,7 @@ __PROMPT__ cat ~/intro.txt
 __PROMPT__ ls -lh
 
 <!--LS HERE-->
+#+INCLUDE: "sitemap.org" :lines "3-"
 
 __PROMPT__ cat reason.txt
 
@@ -106,4 +107,4 @@ In current year it's impossible to feel anything but disgust and disappointment 
 
 But this site at www.ryanmj.xyz _is not_ about that. Instead, this is a place to LARP and pretend it's still 2008. It is a place where we can live in a world before Jack Dorsey literally ruined everything.
 
-[[https://www.amazon.com/Atomised-Michel-Houellebecq/dp/0099283360][This website is dedicated to mankind.]]
+[[https://openlibrary.org/works/OL2286765W/Atomised?edition=atomised00houe][This website is dedicated to mankind.]]

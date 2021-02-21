@@ -68,30 +68,37 @@
                                                 (insert "@@html:<span class=\"prompt1\">ryan</span><span class=\"prompt2\">@</span><span class=\"prompt3\">themainframe</span><span class=\"prompt4\"></span>@@"))))
 
 
-(defun do-ls-on-list (files)
-  "Create ls-like output on a list FILES (string paths).
-Assumes that all files in FILES exist."
-  (when (bound-and-true-p files)
-    (insert
-     (concat
-      "@@html:<p>"
-      (cond ; Get the prefix if the ls -l output.
-       ((file-symlink-p (car files)) "lrwxrwxrwx 1")
-       ((file-directory-p (car files)) "drwxr-xr-x 2")
-       (t "-rw-r--r-- 1"))
-      " ryan ryan "
-       (format "%4s "
-               (shell-command-to-string
-                (concat "find " (car files) " -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")))
-      (shell-command-to-string (concat "ls -dl '--time-style=+%b %m %Y' "
-                                       (car files)
-                                       " | awk '{printf \"%s %2d %s \", $6, $7, $8} '" ))
-      "@@"
-      (format "[[file:%s]]" (car files))
-      "@@html:</p>@@\n"))
-    (do-ls-on-list (cdr files))))
+(defun index-sitemap-entry (entry _style project)
+  "Create ls-like output on file ENTRY with style _STYLE and from project PROJECT."
+  (if (string= entry "index.org")
+      ""
+    (concat
+     "@@html:<p>"
+     (cond ; Get the prefix if the ls -l output.
+      ((file-symlink-p entry) "lrwxrwxrwx 1")
+      ((file-directory-p entry) "drwxr-xr-x 2")
+      (t "-rw-r--r-- 1"))
+     " ryan ryan "
+     (format "%4s "
+             (shell-command-to-string
+              (concat "find " entry " -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")))
+     (shell-command-to-string (concat "ls -dl '--time-style=+%b %m %Y' "
+                                      entry
+                                      " | awk '{printf \"%s %2d %s \", $6, $7, $8} '" ))
+     "@@"
+     (format "[[file:%s]]" entry)
+     "@@html:</p>@@")))
 
 
+
+(defun create-index-blogmap (title list)
+  "Create the sitemap for the posts/ directory.
+Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
+    (concat "#+TITLE: " title "\n\n"
+          (mapconcat (lambda (li)
+                       (format "%s" (car li)))
+                     (seq-filter #'car (cdr list))
+                     "\n")))
 
 ;; Replace <!--LS HERE--> with ls output.
 (add-hook 'org-export-before-parsing-hook #'(lambda (backend)
@@ -103,8 +110,7 @@ Assumes that all files in FILES exist."
                                                          "@@html:<p>total "
                                                          (shell-command-to-string
                                                           "find . -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")
-                                                         " Words</p>@@\n"))
-                                                (do-ls-on-list (list "files" "posts" "software.org")))))
+                                                         " Words</p>@@\n")))))
 
 (defun create-blogmap-entry (entry _style project)
   "Create an entry for the blogmap.
@@ -126,7 +132,7 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
           (mapconcat (lambda (li)
                        (format "%s" (car li)))
                      (seq-filter #'car (cdr list))
-                     "\n")
+                     "")
           "\n#+end_archive\n"))
 
 (defun force-main-publish ()
@@ -143,11 +149,20 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
          :base-directory ""
          :base-extension "org"
          :publishing-directory "public"
-         :recursive nil
          :publishing-function org-html-publish-to-html
          :html-preamble create-preamble
          :html-postamble create-postamble
-         :auto-sitemap nil)
+         :auto-sitemap t
+         :sitemap-filename "sitemap.org"
+         :sitemap-title nil
+         :sitemap-style list
+         :sitemap-sort-files anti-chronologically
+         :sitemap-format-entry index-sitemap-entry
+         :sitemap-function create-index-blogmap
+         :sitemap-sort-folders first
+         ;;:html-link-up "/"
+         ;;:html-link-home "/"
+         :recursive nil)
         ("posts"
          :base-directory "posts"
          :base-extension "org"
@@ -204,7 +219,7 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
          :base-extension "js"
          :recursive t
          :publishing-function org-publish-attachment)
-        ("all" :components ("posts" "css" "main" "res" "files" "scripts"))))
+         ("all" :components ("posts" "css" "main" "res" "files" "scripts"))))
 
 (provide 'publish)
 ;;; publish.el ends here
