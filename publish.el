@@ -40,6 +40,11 @@
 (setq site-dir (concat (getenv "HOME") "/src/site"))
 (setq export-site "/ssh:root@ryanmj.xyz:/var/www/underground/")
 
+;; Get SHA checksum for org-mode js file.
+(defvar js-sum1 (shell-command-to-string
+                 "shasum -b -a 384 scripts/main.js | awk '{ print $1 }' | xxd -r -p | base64 | tr -d '\n'")
+  "SHA checksum for `org-mode' js file.")
+
 (defun create-preamble (plist)
   "Insert preamble, PLIST is list of options."
   (let* ((file-name (file-name-nondirectory (plist-get plist :output-file))))
@@ -111,6 +116,15 @@ Return sitemap using TITLE and LIST returned by `create-blogmap-entry'."
                                                          (shell-command-to-string
                                                           "find . -name '*.org' -exec cat {} + | wc -c | numfmt --to=si | tr -d '\n'")
                                                          " Words</p>@@\n")))))
+
+;; Replace __SHASUM__ with the sum of the file.
+(add-hook 'org-export-before-parsing-hook #'(lambda (backend)
+                                              "Create fake ls listing."
+                                              (goto-char (point-min))
+                                              (while (search-forward "__SHASUM__" (point-max) t)
+                                                (kill-backward-chars (length "__SHASUM__"))
+                                                (insert-before-markers js-sum1))))
+
 
 (defun create-blogmap-entry (entry _style project)
   "Create an entry for the blogmap.
