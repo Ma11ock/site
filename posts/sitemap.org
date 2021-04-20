@@ -2,8 +2,5 @@
 
 
 #+begin_archive
-@@html:<li>@@ @@html:<p>-rw-r--r-- 1 ryan ryan @@  22K [[file:zfs-arch.org][Maximal Anti-Glow-In-The-Dark Setup for Arch Linux With ZFS]] @@html:</p>@@ @@html:</li>@@
-@@html:<li>@@ @@html:<p>-rw-r--r-- 1 ryan ryan @@ 4.9K [[file:mailserver-addendum.org][In Addition to Luke Smith's Mail Configuration Video]] @@html:</p>@@ @@html:</li>@@
-@@html:<li>@@ @@html:<p>-rw-r--r-- 1 ryan ryan @@ 2.3K [[file:arcus.org][Arcus Linux is the True Collapse OS]] @@html:</p>@@ @@html:</li>@@
-@@html:<li>@@ @@html:<p>-rw-r--r-- 1 ryan ryan @@ 1.2K [[file:index.org][Ryan's Blog]] @@html:</p>@@ @@html:</li>@@
+@@html:<p>-rw-r--r-- 1 ryan ryan @@ 6.1K [[file:mailserver-addendum.org][In Addition to Luke Smith's Mail Configuration Video]] @@html:</p>@@
 #+end_archive
