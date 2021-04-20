@@ -42,7 +42,7 @@
 
 ;; Get SHA checksum for org-mode js file.
 (defvar js-sum1 (shell-command-to-string
-                 "shasum -b -a 384 scripts/main.js | awk '{ print $1 }' | xxd -r -p | base64 | tr -d '\n'")
+                 "sha384sum -b scripts/main.js | awk '{ print $1 }' | xxd -r -p | base64 | tr -d '\n'")
   "SHA checksum for `org-mode' js file.")
 
 (defun create-preamble (plist)
