@@ -42,6 +42,7 @@ function init() {
   newCanvas.style['position'] = 'absolute';
   newCanvas.style['left'] = 0;
   newCanvas.style['right'] = 0;
+  newCanvas.style['top'] = 0;
   newCanvas.style['z-index'] = -1;
   newCanvas.width  = window.innerWidth;
   newCanvas.height = window.innerHeight;
