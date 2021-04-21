@@ -87,7 +87,7 @@ Copy the ipv6 address on the top row of "Network range" and place a colon, then 
 
 - Add a reverse DNS entry in Vultr with your chosen ipv6 as the ip address and your domain name as the entry.
 
-
+  
 * fail2ban
 While trying to fix a tiny problem with by server I encountered dozens of lines like this in ~journalctl~:
 
