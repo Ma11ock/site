@@ -23,11 +23,15 @@ function getMonthByNumber(i) {
 // Get the mtime in the same format that LS would.
 function lsTime(timeMS) {
   let fileDate = new Date(timeMS);
+  console.log(fileDate, timeMS);
+  let addString = "";
   // If the file was updated this year then set the last column to the
   // hour and minute. Else, the last column should be the year.
   if((new Date()).getFullYear() != fileDate.getFullYear())
-    return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()} ${fileDate.getHours()}:${fileDate.getMinutes()}`;
-  return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()}  ${fileDate.getFullYear()}`;
+    addString = `${fileDate.getHours()}:${fileDate.getMinutes()}`;
+  else
+    addString = ` ${fileDate.getFullYear()}`;
+  return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()}  ${addString}`;
 }
 
 function permissionToString(i) {
@@ -60,7 +64,7 @@ function ls(thePath) {
     perms: `${prefixChar}${permsResult}`,
     numLinks: stats.nlink,
     fileSize: stats.size,
-    mtime: lsTime(stats.mtimeMS),
+    mtime: lsTime(stats.mtimeMs),
     basename: path.parse(path.basename(thePath)).name,
   };
   return result;
