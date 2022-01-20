@@ -1,6 +1,0 @@
-#+TITLE: Blog Map
-
-
-#+begin_archive
-@@html:<p>-rw-r--r-- 1 ryan ryan @@ 6.1K [[file:mailserver-addendum.org][In Addition to Luke Smith's Mail Configuration Video]] @@html:</p>@@
-#+end_archive
