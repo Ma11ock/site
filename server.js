@@ -30,6 +30,12 @@ function lsTime(timeMS) {
   return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()}  ${fileDate.getFullYear()}`;
 }
 
+function permissionToString(i) {
+  // Unix file permission array. The mode is the index in the array.
+  const permStrings = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+  return (i in permStrings) ? permStrings[i] : null;
+}
+
 function ls(thePath) {
   let result = {};
 
@@ -41,11 +47,9 @@ function ls(thePath) {
   }
   // Convert mode to string.
   let unixFilePermissions = (stats.mode & parseInt('777', 8)).toString(8);
-  // Unix file permission array. The mode is the index in the array.
-  const permStrings = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
-  let permsResult = permStrings[parseInt(unixFilePermissions[0])];
-  permsResult += permStrings[parseInt(unixFilePermissions[1])];
-  permsResult += permStrings[parseInt(unixFilePermissions[2])];
+  let permsResult = permissionToString(parseInt(unixFilePermissions[0]));
+  permsResult += permissionToString(parseInt(unixFilePermissions[1]));
+  permsResult += permissionToString(parseInt(unixFilePermissions[2]));
 
   let prefixChar = '-';
   if(stats.isDirectory()) {
