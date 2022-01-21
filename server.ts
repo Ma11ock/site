@@ -79,14 +79,11 @@ function lsList(theDir: string, ext: string, ...files: string[]) : LSStat[] {
 
 function lsDir(thePath: string) : LSStat[] {
     let fileStats: LSStat[] = [];
-    fs.readdir(thePath, (err, files) => {
-        if(err) {
-            return console.error('Cannot scane directory ', thePath, ": ", err);
-        }
+    // TODO error checking.
+    let files = fs.readdirSync(thePath);
 
-        files.forEach((file) => {
-            fileStats.push(new LSStat(file));
-        });
+    files.forEach((file) => {
+        fileStats.push(new LSStat(file));
     });
 
     return fileStats;
@@ -102,7 +99,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // TODO maybe a system that exports org to handlebars.
-
 // Get the requested post
 app.get('/posts/:post', (req, res, next) => {
     let post = req.params.post.toLowerCase();
@@ -119,12 +115,20 @@ app.get('/posts', (req, res, next) => {
     res.status(200).render('indexWriting');
 });
 // index.html should be before 404 and after everything else
+// Generate files object.
+const files = lsDir('public/files');
+// Server entry for files.
+app.get('/files', (req, res, next) => {
+    res.status(200).render('files', {
+        entries: files
+    });
+});
 
-
+// LS everything.
+const frontPageItems = lsList('public', '.html', 'main', 'software', 'sneed', 'files');
 app.get('/', (req, res, next) => {
-    let test = lsList('public', '.html', 'main', 'software', 'sneed');
     res.status(200).render('index', {
-        entries: test
+        entries: frontPageItems
     });
 });
 
@@ -133,6 +137,7 @@ app.get('*', (req, res) => {
     res.status(404).render('404');
 });
 
+// Server initialize.
 app.listen(port, () => {
     console.log('== Server is listening on port', port);
 });
