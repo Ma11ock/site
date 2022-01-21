@@ -39,7 +39,7 @@ class LSStat {
         this.numLinks = stats.nlink;
         this.fileSize = stats.size;
         this.mtime = lsTime(stats.mtimeMs);
-        this.basename = path.parse(path.basename(thePath)).name;
+        this.basename = thePath;
     }
 }
 
@@ -125,7 +125,19 @@ app.get('/files', (req, res, next) => {
 });
 
 // LS everything.
-const frontPageItems = lsList('public', '.html', 'main', 'software', 'sneed', 'files');
+const frontPageItems = lsList('.', '.html', 'main', 'software', 'sneed');
+
+app.get('/:item', (req, res, next) => {
+    let item = req.params.item.toLowerCase();
+    if(fs.existsSync(item)) {
+        res.status(200).render('post', { text : fs.readFileSync(item) });
+    }
+    else {
+        // Page not found.
+        res.status(404).render('404');
+    }
+});
+
 app.get('/', (req, res, next) => {
     res.status(200).render('index', {
         entries: frontPageItems
