@@ -43,6 +43,14 @@ class LSStat {
     }
 }
 
+function fileExistsIn(thePath: string, statList: LSStat[]) : boolean {
+    for(let i = 0; i < statList.length; i++) {
+        if(statList[i].basename == thePath)
+            return true;
+    }
+    return false;
+}
+
 function getMonthByNumber(i: number) : string {
     const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
                      'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
@@ -99,10 +107,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // TODO maybe a system that exports org to handlebars.
+const postItems = lsDir('posts');
 // Get the requested post
 app.get('/posts/:post', (req, res, next) => {
     let post = req.params.post.toLowerCase();
-    if(fs.existsSync(post)) {
+    if(fileExistsIn(post, postItems)) {
         res.status(200).render('writing', { text : fs.readFileSync(post) });
     }
     else {
@@ -129,7 +138,7 @@ const frontPageItems = lsList('.', '.html', 'main', 'software', 'sneed');
 
 app.get('/:item', (req, res, next) => {
     let item = req.params.item.toLowerCase();
-    if(fs.existsSync(item)) {
+    if(fileExistsIn(item, frontPageItems)) {
         res.status(200).render('post', { text : fs.readFileSync(item) });
     }
     else {
