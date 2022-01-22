@@ -1,0 +1,21 @@
+{{#if isTerminal}}
+  <div class="twin topl">
+    <div style="tcontent">
+    </div>
+    <div id="content">
+      {{#if lsList}}
+        <p>
+          <span class="prompt1">ryan</span><span class="prompt2">@</span><span class="prompt3">themainframe</span><span class="prompt4"></span> ls {{where}}
+        </p>
+        {{#each lsList}}
+          {{> lsTemplate}}
+        {{/each}}
+      {{/if}}
+
+      {{#if markup}}
+        {{{markup}}}
+      {{/if}}
+    </div>
+  </div>
+{{/if}}
+

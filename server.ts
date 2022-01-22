@@ -9,6 +9,18 @@ import fs from 'fs';
 const app = express();
 const port = process.env.PORT || 3000;
 
+function getMonthByNumber(i: number) : string {
+    const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                     'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+    return (i in months) ? months[i] : "";
+}
+
+function permissionToString(i: number) : string {
+    // Unix file permission array. The mode is the index in the array.
+    const permStrings = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
+    return (i in permStrings) ? permStrings[i] : "";
+}
+
 class LSStat {
     perms: string;
     numLinks: number;
@@ -38,63 +50,92 @@ class LSStat {
         this.perms = `${prefixChar}${permsResult}`;
         this.numLinks = stats.nlink;
         this.fileSize = stats.size;
-        this.mtime = lsTime(stats.mtimeMs);
+        this.mtime = LSStat.lsTime(stats.mtimeMs);
         this.basename = thePath;
     }
-}
 
-function fileExistsIn(thePath: string, statList: LSStat[]) : boolean {
-    for(let i = 0; i < statList.length; i++) {
-        if(statList[i].basename == thePath)
-            return true;
+    // Get the mtime in the same format that LS would.
+    static lsTime(timeMS: number) : string {
+        let fileDate = new Date(timeMS);
+        let addString = "";
+        // If the file was updated this year then set the last column to the
+        // hour and minute. Else, the last column should be the year.
+        if((new Date()).getFullYear() != fileDate.getFullYear())
+            addString = `${fileDate.getHours()}:${fileDate.getMinutes()}`;
+        else
+            addString = ` ${fileDate.getFullYear()}`;
+        return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()}  ${addString}`;
     }
-    return false;
+
+    static lsList(theDir: string, ext: string, files: string[]) : LSStat[] {
+        let fileStats: LSStat[] = [];
+        files.forEach((element: string) => {
+            fileStats.push(new LSStat(path.join(theDir, element + ext)));
+        });
+        return fileStats;
+    }
+
+    static lsDir(thePath: string) : LSStat[] {
+        let fileStats: LSStat[] = [];
+        // TODO error checking.
+        let files = fs.readdirSync(thePath);
+
+        files.forEach((file) => {
+            fileStats.push(new LSStat(file));
+        });
+
+        return fileStats;
+    }
+
+    static fileExistsIn(thePath: string, statList: LSStat[]) : boolean {
+        for(let i = 0; i < statList.length; i++) {
+            if(statList[i].basename == thePath)
+                return true;
+        }
+        return false;
+    }
 }
 
-function getMonthByNumber(i: number) : string {
-    const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-                     'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-    return (i in months) ? months[i] : "";
-}
+class TerminalWindow {
+    lsList: LSStat[];
 
-// Get the mtime in the same format that LS would.
-function lsTime(timeMS: number) : string {
-    let fileDate = new Date(timeMS);
-    let addString = "";
-    // If the file was updated this year then set the last column to the
-    // hour and minute. Else, the last column should be the year.
-    if((new Date()).getFullYear() != fileDate.getFullYear())
-        addString = `${fileDate.getHours()}:${fileDate.getMinutes()}`;
-    else
-        addString = ` ${fileDate.getFullYear()}`;
-    return `${getMonthByNumber(fileDate.getMonth())} ${fileDate.getDate()}  ${addString}`;
-}
+    where: string;
+    markup: string;
 
-function permissionToString(i: number) : string {
-    // Unix file permission array. The mode is the index in the array.
-    const permStrings = ['---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx'];
-    return (i in permStrings) ? permStrings[i] : "";
-}
+    constructor() {
+    }
 
+    static makeDir(path: string) : TerminalWindow {
+        let newWin = new TerminalWindow();
+        // LS if it is a directory, read file if not.
+        if(fs.lstatSync(path).isDirectory()) {
+            newWin.where = path;
+            newWin.lsList = LSStat.lsDir(path);
+            newWin.markup = "";
+        }
+        else {
+            newWin.where = "";
+            newWin.lsList = [];
+            newWin.markup = fs.readFileSync(path, 'utf8');
+        }
+        return newWin;
+    }
 
-function lsList(theDir: string, ext: string, ...files: string[]) : LSStat[] {
-    let fileStats: LSStat[] = [];
-    files.forEach((element: string) => {
-        fileStats.push(new LSStat(path.join(theDir, element + ext)));
-    });
-    return fileStats;
-}
+    static makeLS(dir: string, ext: string, paths: string[]) : TerminalWindow {
+        let newWin = new TerminalWindow();
+        newWin.where = dir;
+        newWin.lsList = LSStat.lsList(dir, ext, paths);
+        newWin.markup = "";
+        return newWin;
+    }
 
-function lsDir(thePath: string) : LSStat[] {
-    let fileStats: LSStat[] = [];
-    // TODO error checking.
-    let files = fs.readdirSync(thePath);
-
-    files.forEach((file) => {
-        fileStats.push(new LSStat(file));
-    });
-
-    return fileStats;
+    static makeList(lsList: LSStat[]) : TerminalWindow {
+        let newWin = new TerminalWindow();
+        newWin.lsList = lsList;
+        newWin.where = "";
+        newWin.markup = "";
+        return newWin;
+    }
 }
 
 // App config
@@ -107,11 +148,11 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(express.json());
 
 // TODO maybe a system that exports org to handlebars.
-const postItems = lsDir('posts');
+const postItems = LSStat.lsDir('posts');
 // Get the requested post
 app.get('/posts/:post', (req, res, next) => {
     let post = req.params.post.toLowerCase();
-    if(fileExistsIn(post, postItems)) {
+    if(LSStat.fileExistsIn(post, postItems)) {
         res.status(200).render('writing', { text : fs.readFileSync(post) });
     }
     else {
@@ -125,7 +166,7 @@ app.get('/posts', (req, res, next) => {
 });
 // index.html should be before 404 and after everything else
 // Generate files object.
-const files = lsDir('public/files');
+const files = LSStat.lsDir('public/files');
 // Server entry for files.
 app.get('/files', (req, res, next) => {
     res.status(200).render('files', {
@@ -134,11 +175,11 @@ app.get('/files', (req, res, next) => {
 });
 
 // LS everything.
-const frontPageItems = lsList('.', '.html', 'main', 'software', 'sneed');
+const frontPageItems = LSStat.lsList('.', '.html', ['main', 'software', 'sneed']);
 
 app.get('/:item', (req, res, next) => {
     let item = req.params.item.toLowerCase();
-    if(fileExistsIn(item, frontPageItems)) {
+    if(LSStat.fileExistsIn(item, frontPageItems)) {
         res.status(200).render('post', { text : fs.readFileSync(item) });
     }
     else {
@@ -149,7 +190,7 @@ app.get('/:item', (req, res, next) => {
 
 app.get('/', (req, res, next) => {
     res.status(200).render('index', {
-        entries: frontPageItems
+        windows: [LSStat.makeLS('.', '.html', ['main', 'software', 'sneed'])]
     });
 });
 
