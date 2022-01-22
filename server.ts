@@ -103,7 +103,7 @@ app.engine('handlebars', engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 app.set('views', "./views");
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(express.json());
 
 // TODO maybe a system that exports org to handlebars.
@@ -160,5 +160,6 @@ app.get('*', (req, res) => {
 
 // Server initialize.
 app.listen(port, () => {
-    console.log('== Server is listening on port', port);
+    console.log('== Server is listening on port', port,
+                'in current directory', process.cwd());
 });
