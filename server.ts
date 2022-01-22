@@ -96,45 +96,37 @@ class LSStat {
     }
 }
 
-class TerminalWindow {
+// Dummy class just for inheritance.
+class Command {
+    args: string;
+    constructor(args: string) {
+        this.args = args;
+    }
+}
+
+class LS extends Command {
     lsList: LSStat[];
 
-    where: string;
+    constructor(dir: string, ext:string, names: string[]) {
+        super(dir);
+        this.lsList = LSStat.lsList(dir, ext, names);
+    }
+}
+
+class Cat extends Command {
     markup: string;
 
-    constructor() {
+    constructor(path: string) {
+        super(path);
+        this.markup = fs.readFileSync(path, 'utf8');
     }
+}
 
-    static makeDir(path: string) : TerminalWindow {
-        let newWin = new TerminalWindow();
-        // LS if it is a directory, read file if not.
-        if(fs.lstatSync(path).isDirectory()) {
-            newWin.where = path;
-            newWin.lsList = LSStat.lsDir(path);
-            newWin.markup = "";
-        }
-        else {
-            newWin.where = "";
-            newWin.lsList = [];
-            newWin.markup = fs.readFileSync(path, 'utf8');
-        }
-        return newWin;
-    }
+class TerminalWindow {
+    commands: Command[];
 
-    static makeLS(dir: string, ext: string, paths: string[]) : TerminalWindow {
-        let newWin = new TerminalWindow();
-        newWin.where = dir;
-        newWin.lsList = LSStat.lsList(dir, ext, paths);
-        newWin.markup = "";
-        return newWin;
-    }
-
-    static makeList(lsList: LSStat[]) : TerminalWindow {
-        let newWin = new TerminalWindow();
-        newWin.lsList = lsList;
-        newWin.where = "";
-        newWin.markup = "";
-        return newWin;
+    constructor(...commands: Command[]) {
+        this.commands = commands;
     }
 }
 
@@ -188,9 +180,12 @@ app.get('/:item', (req, res, next) => {
     }
 });
 
+// TODO!!!! each window needs multiple commands.
 app.get('/', (req, res, next) => {
     res.status(200).render('index', {
-        windows: [LSStat.makeLS('.', '.html', ['main', 'software', 'sneed'])]
+        windows: [new TerminalWindow(new Cat('public/figlet.html'),
+                                     new LS('.', '.html', ['main', 'software', 'sneed']),
+                                     new Cat('public/front.html'))],
     });
 });
 
