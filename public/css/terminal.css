@@ -110,7 +110,7 @@ h4 {
   padding: 0;
 }
 
-.twin p {
+.twin p, span {
   margin: 0 auto;
   padding: 0;
   white-space: pre-wrap;
@@ -121,6 +121,19 @@ h4 {
 .prompt1 {
   color: var(--bisque4);
   text-shadow: 0 0 4px var(--bisque4);
+}
+
+.prompt-break {
+  content: '-';
+  background-position: center;
+  background-color: transparent; 
+  background-repeat: repeat-x;
+  border: none;
+  border-top: 3px double #333;
+  color: #333;
+  overflow: visible;
+  text-align: center;
+  height: 0.2em;
 }
 
 .prompt2 {
