@@ -8,6 +8,27 @@ import fs from 'fs';
 
 const app = express();
 const port = process.env.PORT || 3000;
+let theBkgScript = '';
+let allBkgScripts: string[] = [];
+
+function getBkgScripts(scriptDir: string) : string[] {
+    let result: string[] = [];
+    let files = fs.readdirSync(scriptDir);
+    files.forEach(file => {
+        if(path.extname(file) == '.js' && file != 'backs.js') {
+            result.push(file);
+        }
+    });
+    return result;
+}
+
+allBkgScripts = getBkgScripts('./external/site-bkgs/bin/');
+theBkgScript = allBkgScripts[Math.floor(Math.random() * allBkgScripts.length)];
+
+// Get a new background script once per day.
+setInterval(() => {
+    theBkgScript = allBkgScripts[Math.floor(Math.random() * allBkgScripts.length)];
+}, (1000 * 60 * 60 * 24));
 
 function getMonthByNumber(i: number) : string {
     const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
@@ -187,6 +208,7 @@ app.get('/', (req, res, next) => {
         windows: [new TerminalWindow(new Cat('public/figlet.html'),
                                      new LS('.', '.html', ['main', 'software', 'sneed']),
                                      new Cat('public/front.html'))],
+        bkgScript: `/site-bkgs/bin/${theBkgScript}`,
     });
 });
 

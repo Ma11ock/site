@@ -55,9 +55,14 @@ h4 {
   padding: 0;
   margin: auto;
   margin-top: auto;
-  background-color: rgba(200,200,200,0.2);
+  background-color: rgba(41,44,45,0.6);
   border: 0.1em solid white;
   text-align: center;
+  text-shadow:
+    -1px -1px 0 #000,  
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 #taskbar div {
