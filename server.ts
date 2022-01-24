@@ -137,6 +137,7 @@ app.set('view engine', 'handlebars');
 app.set('views', "./views");
 
 app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(path.join(process.cwd(), 'external')));
 app.use(express.json());
 
 // TODO maybe a system that exports org to handlebars.
