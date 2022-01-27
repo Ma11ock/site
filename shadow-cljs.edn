@@ -1,0 +1,17 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ []
+
+ :builds
+ {:app {:target :node-script
+        :output-to "bin/main.js"
+        :main rmjxyz.app/main!
+        :devtools {:after-load rmjxyz.app/reload!}
+        }
+  }
+ }
