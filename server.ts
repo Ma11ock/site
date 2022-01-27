@@ -1,6 +1,5 @@
 // Cropyright (C) Ryan Jeffrey 2022
 // A simple express server that uses handlebars.
-
 import express from 'express';
 import path from 'path';
 import exphbs, { engine } from 'express-handlebars';
@@ -164,10 +163,19 @@ app.use(express.json());
 // TODO maybe a system that exports org to handlebars.
 const postItems = LSStat.lsDir('posts');
 // Get the requested post
-app.get('/posts/:post', (req, res, next) => {
+app.get('/posts/:post', async (req, res, next) => {
     let post = req.params.post.toLowerCase();
     if(LSStat.fileExistsIn(post, postItems)) {
-        res.status(200).render('writing', { text : fs.readFileSync(post) });
+        await fs.readFile(post, 'utf8', (err, data) => {
+            if(err) {
+                console.log("Error when looking for post", post);
+                // TODO internal error.
+                res.status(404).render('404');
+            }
+            else {
+                res.status(200).render('writing', { text : data });
+            }
+        });
     }
     else {
         // Page not found.
@@ -191,10 +199,49 @@ app.get('/files', (req, res, next) => {
 // LS everything.
 const frontPageItems = LSStat.lsList('.', '.html', ['main', 'software', 'sneed']);
 
-app.get('/:item', (req, res, next) => {
+app.get('/bkgs', (req, res, next) => {
+    res.status(200).render('index', {
+        windows: [new TerminalWindow(new Cat('public/bkgs/index.html'))],
+        bkgScript: `/site-bkgs/bin/${theBkgScript}`,
+    });
+});
+
+app.get('/bkgs/:item', async (req, res, next) => {
+    let scriptPath = path.join(process.cwd(),
+                               `external/site-bkgs/bin/${req.params.item}.js`);
+    await fs.exists(scriptPath, (exists) => {
+        if(exists) {
+            res.set('Content-Type', 'text/html');
+            res.status(200).send(Buffer.from(
+                `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<body>
+<script defer type="module" src="/site-bkgs/bin/${req.params.item}.js"></script>
+</body>
+</html>
+`));
+        }
+        else {
+            res.status(404).render('404');
+        }
+    });
+});
+
+app.get('/:item', async (req, res, next) => {
     let item = req.params.item.toLowerCase();
     if(LSStat.fileExistsIn(item, frontPageItems)) {
-        res.status(200).render('post', { text : fs.readFileSync(item) });
+        await fs.readFile(item, 'utf8', (err, buf) => {
+            if(err) {
+                console.log("Error when looking for item", item);
+                // TODO internal error.
+                res.status(404).render('404');
+            }
+            else {
+                res.status(200).render('post', { text : fs.readFileSync(item) });
+            }
+        });
     }
     else {
         // Page not found.
@@ -202,8 +249,8 @@ app.get('/:item', (req, res, next) => {
     }
 });
 
-// TODO!!!! each window needs multiple commands.
 app.get('/', (req, res, next) => {
+    // TODO cache.
     res.status(200).render('index', {
         windows: [new TerminalWindow(new Cat('public/figlet.html'),
                                      new LS('.', '.html', ['main', 'software', 'sneed']),
