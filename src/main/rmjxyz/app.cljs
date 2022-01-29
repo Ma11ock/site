@@ -1,7 +1,7 @@
 (ns rmjxyz.app
   (:require   [cljs.nodejs :as nodejs]
               ["express" :as express]
-              ["express-handlebars" :as exphbs]
+              ["express-handlebars" :refer [engine]]
               [cljs.core.async :refer-macros [go]]
               [cljs.pprint :refer [pprint]]
               [cljs.core.async.interop :refer-macros [<p!]]))
@@ -71,23 +71,40 @@
 (defn create-command
   "Create a command object for rendering in the website."
   ;; LS list.
-  ([dir ext names])
+  ([dir ext paths] (js-obj "args" dir
+                           "lsList" (ls-list dir ext paths)))
   ;; Cat.
-  ([path args]))
+  ([path] (js-obj "args" path
+                  "markup" (.readdirSync fs path "utf8"))))
 
 (defn create-windows
   "Create the window data for the site."
-  []
-  (set! index-windows []))
+  [commands]
+  (js-obj "commands" commands))
 
 (defn init-server 
   "Set the server's routes."
   []
   (println "Starting server...")
   (let [server (express)]
-    (.engine server "handlebars" (exphbs (js-obj "defaultlayout" "main")))
-    (.get server "/" (fn [req res next] (.render (.status res 200) "index"
-                                              (js-obj))))
+    (.engine server "handlebars" (engine (js-obj "defaultlayout" "main")))
+    (.get server "/:item" (fn [req res next]
+                            (let [item (.toLowerCase (.-item (.-params req)))]
+                              (if (some #(= item %) (ls-list "." ".html" ["main software" "sneed"]))
+                                (go
+                                  (try
+                                    (<p! (.readFile fs item "utf8" (fn [err buf]
+                                                                     (if err
+                                                                       (js/console.log "Error when looking for item " item)
+                                                                       (.render (.status res 200) "post" (js-obj "text" buf))))))
+                                    (catch js/Error err (js/console.error err))))
+                                (.render (.status res 404) "404")))))
+    (.get server "/" (fn [req res next]
+                       (.render (.status res 200) "index"
+                                (create-windows [(create-command "public/figlet.html")
+                                                 (create-command "." ".html" ["main" "software" "sneed"])
+                                                 (create-command "public/front.html")]))))
+    (.get server "*" (fn [req res next] (.render (.status res 404) "404")))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
 (defn start!
@@ -98,8 +115,7 @@
 (defn main!
   "Main function"
   []
- ; (start!)
-  )
+  (start!))
 
 (defn reload!
   "Stop the server."
