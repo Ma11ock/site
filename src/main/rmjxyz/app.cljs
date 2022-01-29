@@ -10,6 +10,7 @@
 (defonce app (atom nil))
 (defonce index-windows (atom nil))
 (defonce fs (js/require "fs"))
+(defonce path (js/require "path"))
 (defonce permStrings ["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"])
 (defonce mons [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                 "Aug", "Sep", "Oct", "Nov", "Dec" ])
@@ -52,22 +53,58 @@
        "mtime" (ls-time (.-mtimeMs stats))
        "basename" path))))
 
+(defn ls-list
+  "Create a list of ls-stats from a list of file paths."
+  ([paths]
+   (for [file paths]
+     (create-lstat file)))
+  ([basedir ext paths]
+   (for [file paths]
+     (create-lstat (.join path basedir (str file ext))))))
+
+(defn ls-dir
+  "Create a list of ls-stats from a directory."
+  [dir-path]
+  (when (and (.existsSync fs dir-path) (.isDirectory (.lstatSync fs dir-path)))
+    (ls-list (.readdirSync fs dir-path))))
+
+(defn create-command
+  "Create a command object for rendering in the website."
+  ;; LS list.
+  ([dir ext names])
+  ;; Cat.
+  ([path args]))
+
 (defn create-windows
   "Create the window data for the site."
   []
   (set! index-windows []))
 
-(defn routes
+(defn init-server 
   "Set the server's routes."
-  [^js app]
-  (.get app "/" (fn [req res next] (.render (.status 200 res) "index",
-                                            (js-obj)))))
+  []
+  (println "Starting server...")
+  (let [server (express)]
+    (.engine server "handlebars" (exphbs (js-obj "defaultlayout" "main")))
+    (.get server "/" (fn [req res next] (.render (.status res 200) "index"
+                                              (js-obj))))
+    (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
+
+(defn start!
+  "Start the server."
+  []
+  (reset! app (init-server)))
+
 (defn main!
   "Main function"
   []
-  (create-lstat "./"))
+ ; (start!)
+  )
 
 (defn reload!
-  "Reload"
+  "Stop the server."
   []
-  )
+  (.close @app)
+  (reset! app nil)
+  (start!))
+
