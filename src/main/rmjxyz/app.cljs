@@ -11,9 +11,12 @@
 (defonce index-windows (atom nil))
 (defonce fs (js/require "fs"))
 (defonce path (js/require "path"))
+(defonce process (js/require "process"))
 (defonce permStrings ["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"])
 (defonce mons [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                 "Aug", "Sep", "Oct", "Nov", "Dec" ])
+(defonce post-items (atom nil))
+(defonce index-items (atom nil))
 
 (defn mon-by-index
   "Get a month (abbreviation) by its index. Returns nil if i is out of range."
@@ -75,42 +78,74 @@
                            "lsList" (ls-list dir ext paths)))
   ;; Cat.
   ([path] (js-obj "args" path
-                  "markup" (.readdirSync fs path "utf8"))))
+                  "markup" (.readFileSync fs path "utf8"))))
 
 (defn create-windows
   "Create the window data for the site."
   [commands]
   (js-obj "commands" commands))
 
+(defn serve-404
+  "Serve the 404 page from path to res."
+  [file res] (.render (.status res 404) "404"))
+
+(defn serve-200
+  "Serve a page with result 200."
+  ([template res] (.render (.status res 200) template))
+  ([template res obj] (.render (.status res 200) template obj)))
+
+
+(defn serve-file-to
+  "Serve file to res asynchronously."
+  [file res]
+  (go
+    (try
+      (<p! (.readFile fs file "utf8" (fn [err buf]
+                                       (if err
+                                         (js/console.log "Error when looking for item " file)
+                                         (serve-200 "post" res (js-obj "text" buf))))))
+      ;; TOTO internal error.
+      (catch js/Error err (js/console.error err)))))
+
 (defn init-server 
   "Set the server's routes."
   []
   (println "Starting server...")
   (let [server (express)]
+    ;; Server settings.
+    (.use server (.static express (.join path (.cwd process) "public")))
+    (.use server (.static express (.join path (.cwd process) "external")))
+    (.use server (.json express))
     (.engine server "handlebars" (engine (js-obj "defaultlayout" "main")))
+    (.set server "view engine" "handlebars")
+    (.set server "views" "./views")
+
+    ;; Server paths.
+    (.get server "/posts/:post" (fn [req res next]
+                                  (let [post (.toLowerCase (.-item (.-params req)))]
+                                    (if (some #(= post %) post-items)
+                                      (serve-file-to post res)
+                                      (serve-404 post res)))))
+    (.get server "/posts" (fn [req res next]
+                                  ))
     (.get server "/:item" (fn [req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               (if (some #(= item %) (ls-list "." ".html" ["main software" "sneed"]))
-                                (go
-                                  (try
-                                    (<p! (.readFile fs item "utf8" (fn [err buf]
-                                                                     (if err
-                                                                       (js/console.log "Error when looking for item " item)
-                                                                       (.render (.status res 200) "post" (js-obj "text" buf))))))
-                                    (catch js/Error err (js/console.error err))))
-                                (.render (.status res 404) "404")))))
+                                (serve-file-to item res)
+                                (serve-404 item res)))))
     (.get server "/" (fn [req res next]
-                       (.render (.status res 200) "index"
-                                (create-windows [(create-command "public/figlet.html")
-                                                 (create-command "." ".html" ["main" "software" "sneed"])
-                                                 (create-command "public/front.html")]))))
-    (.get server "*" (fn [req res next] (.render (.status res 404) "404")))
+                       (serve-200 "index" res index-items)))
+    (.get server "*" (fn [req res next] (.toLowerCase (.-item (.-params req)) res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
 (defn start!
   "Start the server."
   []
-  (reset! app (init-server)))
+  (reset! app (init-server))
+  (reset! post-items (ls-dir "posts"))
+  (reset! index-items (create-windows [(create-command "public/figlet.html")
+                                       (create-command "." ".html" ["main" "software" "sneed"])
+                                       (create-command "public/front.html")])))
 
 (defn main!
   "Main function"
