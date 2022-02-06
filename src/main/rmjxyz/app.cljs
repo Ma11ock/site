@@ -12,9 +12,9 @@
 (defonce fs (js/require "fs"))
 (defonce path (js/require "path"))
 (defonce process (js/require "process"))
-(defonce permStrings ["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"])
-(defonce mons [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-                "Aug", "Sep", "Oct", "Nov", "Dec" ])
+(defonce permStrings ["---" "--x" "-w-" "-wx" "r--" "r-x" "rw-" "rwx"])
+(defonce mons [ "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul"
+                "Aug" "Sep" "Oct" "Nov" "Dec" ])
 (defonce post-items (atom nil))
 (defonce index-items (atom nil))
 
@@ -32,7 +32,7 @@
   "Convert time stamp in milliseconds to LS time format."
   [timeMS]
   (let [file-date (js/Date. timeMS)]
-    (str (mon-by-index (.getMonth file-date)) " " (.getDate file-date)
+    (str (mon-by-index (.getMonth file-date)) " " (.getDate file-date) " "
          ;; If the file was updated this year then set the last column to the
          ;; hour and minute. Else, the last column should be the year.
          (if (= (compare (.getFullYear file-date) (.getFullYear (js/Date.))) 0)
@@ -41,20 +41,20 @@
 
 (defn create-lstat
   "Create an LSStat object for use in rendering."
-  [path]
-  (let [stats (.statSync fs path)
-        unixFilePerms (if stats(.toString (bit-and (.-mode stats) (js/parseInt "777")))
-                          nil)]
+  [file-path]
+  (let [stats (.statSync fs file-path)
+        unixFilePerms (when stats (.toString (bit-and (.-mode stats) (js/parseInt "777" 8)) 8))]
     (if stats
-      (js-obj
-       "perms" (str (if (.isDirectory stats) "d" "-")
-                    (permissions-to-string (js/parseInt (first unixFilePerms)))
-                    (permissions-to-string (js/parseInt (second unixFilePerms)))
-                    (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
+      { "perms" (str (if (.isDirectory stats) "d" "-")
+                     (permissions-to-string (js/parseInt (first unixFilePerms)))
+                     (permissions-to-string (js/parseInt (second unixFilePerms)))
+                     (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
        "numLinks" (.-nlink stats)
        "fileSize" (.-size stats)
        "mtime" (ls-time (.-mtimeMs stats))
-       "basename" path))))
+       "basename" file-path }
+      ;; TODO actually deal with error.
+      (js/console.error "Could not stat" file-path))))
 
 (defn ls-list
   "Create a list of ls-stats from a list of file paths."
@@ -74,16 +74,17 @@
 (defn create-command
   "Create a command object for rendering in the website."
   ;; LS list.
-  ([dir ext paths] (js-obj "args" dir
-                           "lsList" (ls-list dir ext paths)))
+  ([dir ext paths] {"args" dir
+                    "lsList" (ls-list dir ext paths)})
   ;; Cat.
-  ([path] (js-obj "args" path
-                  "markup" (.readFileSync fs path "utf8"))))
+  ([path] {"args" path
+           "markup" (.readFileSync fs path "utf8")}))
 
 (defn create-windows
   "Create the window data for the site."
-  [commands]
-  (js-obj "commands" commands))
+  [commands-list]
+  { "windows" (for [cmds commands-list]
+                {"commands" cmds})})
 
 (defn serve-404
   "Serve the 404 page from path to res."
@@ -92,7 +93,8 @@
 (defn serve-200
   "Serve a page with result 200."
   ([template res] (.render (.status res 200) template))
-  ([template res obj] (.render (.status res 200) template obj)))
+  ([template res obj]
+   (.. res (status 200) (render template obj))))
 
 
 (defn serve-file-to
@@ -103,7 +105,7 @@
       (<p! (.readFile fs file "utf8" (fn [err buf]
                                        (if err
                                          (js/console.log "Error when looking for item " file)
-                                         (serve-200 "post" res (js-obj "text" buf))))))
+                                         (serve-200 "post" res #js{ "text" buf })))))
       ;; TOTO internal error.
       (catch js/Error err (js/console.error err)))))
 
@@ -116,13 +118,13 @@
     (.use server (.static express (.join path (.cwd process) "public")))
     (.use server (.static express (.join path (.cwd process) "external")))
     (.use server (.json express))
-    (.engine server "handlebars" (engine (js-obj "defaultlayout" "main")))
+    (.engine server "handlebars" (engine (clj->js { :defaultLayout "main" })))
     (.set server "view engine" "handlebars")
     (.set server "views" "./views")
 
     ;; Server paths.
     (.get server "/posts/:post" (fn [req res next]
-                                  (let [post (.toLowerCase (.-item (.-params req)))]
+                                  (let [post (.toLowerCase (.-post (.-params req)))]
                                     (if (some #(= post %) post-items)
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
@@ -130,12 +132,12 @@
                                   ))
     (.get server "/:item" (fn [req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
-                              (if (some #(= item %) (ls-list "." ".html" ["main software" "sneed"]))
+                              (if (some #(= item %) (ls-list "." ".html" ["main" "software" "sneed"]))
                                 (serve-file-to item res)
                                 (serve-404 item res)))))
     (.get server "/" (fn [req res next]
-                       (serve-200 "index" res index-items)))
-    (.get server "*" (fn [req res next] (.toLowerCase (.-item (.-params req)) res)))
+                       (serve-200 "index" res (clj->js (.-state index-items)))))
+    (.get server "*" (fn [req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
 (defn start!
@@ -143,9 +145,9 @@
   []
   (reset! app (init-server))
   (reset! post-items (ls-dir "posts"))
-  (reset! index-items (create-windows [(create-command "public/figlet.html")
-                                       (create-command "." ".html" ["main" "software" "sneed"])
-                                       (create-command "public/front.html")])))
+  (reset! index-items (create-windows [[(create-command "public/figlet.html")
+                                        (create-command "." ".html" ["main" "software" "sneed"])
+                                        (create-command "public/front.html")]])))
 
 (defn main!
   "Main function"

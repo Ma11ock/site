@@ -5,13 +5,14 @@
   "src/test"]
 
  :dependencies
- []
+ [[cider/cider-nrepl "0.28.2"]]
 
  :builds
  {:app {:target :node-script
         :output-to "bin/main.js"
         :main rmjxyz.app/main!
-        :devtools {:after-load rmjxyz.app/reload!}
+        :devtools {:after-load rmjxyz.app/reload!
+                   :repl-pprint true}
         }
   }
  }
