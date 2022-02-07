@@ -168,7 +168,7 @@ body {
   background-size: cover; /* Resize the background image to cover the entire container */
   background-size: cover;
   background-repeat: no-repeat;
-  font-family: "Hasklig", "Inconsolata", "Courier New", monospace;
+  font-family: monospace;
   font-size: 1.1em;
   -webkit-font-smoothing : none;
   -moz-font-smoothing: never;
