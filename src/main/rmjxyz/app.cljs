@@ -17,6 +17,7 @@
                 "Aug" "Sep" "Oct" "Nov" "Dec" ])
 (defonce post-items (atom nil))
 (defonce index-items (atom nil))
+(defonce all-bkg-scripts (atom nil))
 
 (defn mon-by-index
   "Get a month (abbreviation) by its index. Returns nil if i is out of range."
@@ -129,14 +130,15 @@
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [req res next]
-                                  ))
+                            ))
     (.get server "/:item" (fn [req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               (if (some #(= item %) (ls-list "." ".html" ["main" "software" "sneed"]))
                                 (serve-file-to item res)
                                 (serve-404 item res)))))
     (.get server "/" (fn [req res next]
-                       (serve-200 "index" res (clj->js (.-state index-items)))))
+                       (serve-200 "index" res (clj->js (merge (deref index-items)
+                                                              {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
     (.get server "*" (fn [req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
@@ -147,7 +149,11 @@
   (reset! post-items (ls-dir "posts"))
   (reset! index-items (create-windows [[(create-command "public/figlet.html")
                                         (create-command "." ".html" ["main" "software" "sneed"])
-                                        (create-command "public/front.html")]])))
+                                        (create-command "public/front.html")]]))
+  (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
+                            (for [file files
+                                  :when (and (= (.extname path file) ".js") (not= file "backs.js"))]
+                              file))))
 
 (defn main!
   "Main function"
