@@ -2,6 +2,8 @@
   (:require   [cljs.nodejs :as nodejs]
               ["express" :as express]
               ["express-handlebars" :refer [engine]]
+              [goog.string :as gstring]
+              [goog.string.format]
               [cljs.core.async :refer-macros [go]]
               [cljs.pprint :refer [pprint]]
               [cljs.core.async.interop :refer-macros [<p!]]))
@@ -33,11 +35,11 @@
   "Convert time stamp in milliseconds to LS time format."
   [timeMS]
   (let [file-date (js/Date. timeMS)]
-    (str (mon-by-index (.getMonth file-date)) " " (.getDate file-date) " "
+    (str (mon-by-index (.getMonth file-date)) " " (gstring/format "%02d" (.getDate file-date)) " "
          ;; If the file was updated this year then set the last column to the
          ;; hour and minute. Else, the last column should be the year.
-         (if (= (compare (.getFullYear file-date) (.getFullYear (js/Date.))) 0)
-           (str (.getHours file-date) ":" (.getMinutes file-date))
+         (if (= (.getFullYear file-date) (.getFullYear (js/Date.)))
+           (str (gstring/format "%02d" (.getHours file-date)) ":" (gstring/format "%02d" (.getMinutes file-date)))
            (str (.getFullYear file-date))))))
 
 (defn create-lstat
@@ -46,25 +48,25 @@
   (let [stats (.statSync fs file-path)
         unixFilePerms (when stats (.toString (bit-and (.-mode stats) (js/parseInt "777" 8)) 8))]
     (if stats
-      { "perms" (str (if (.isDirectory stats) "d" "-")
+      { :perms (str (if (.isDirectory stats) "d" "-")
                      (permissions-to-string (js/parseInt (first unixFilePerms)))
                      (permissions-to-string (js/parseInt (second unixFilePerms)))
                      (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
-       "numLinks" (.-nlink stats)
-       "fileSize" (.-size stats)
-       "mtime" (ls-time (.-mtimeMs stats))
-       "basename" file-path }
+       :numLinks (.-nlink stats)
+       :fileSize (.-size stats)
+       :mtime (ls-time (.-mtimeMs stats))
+       :basename (.basename path file-path) }
       ;; TODO actually deal with error.
       (js/console.error "Could not stat" file-path))))
 
 (defn ls-list
-  "Create a list of ls-stats from a list of file paths."
+  "Create a list of ls-stats from a list of file paths. Looks into public."
   ([paths]
    (for [file paths]
      (create-lstat file)))
   ([basedir ext paths]
    (for [file paths]
-     (create-lstat (.join path basedir (str file ext))))))
+     (create-lstat (.join path "./public" basedir (str file ext))))))
 
 (defn ls-dir
   "Create a list of ls-stats from a directory."
@@ -148,7 +150,7 @@
   (reset! app (init-server))
   (reset! post-items (ls-dir "posts"))
   (reset! index-items (create-windows [[(create-command "public/figlet.html")
-                                        (create-command "." ".html" ["main" "software" "sneed"])
+                                        (create-command "." "" ["main.html" "software.html" "sneed.html" "posts"])
                                         (create-command "public/front.html")]]))
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
