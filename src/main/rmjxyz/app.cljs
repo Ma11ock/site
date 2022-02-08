@@ -18,6 +18,7 @@
 (defonce mons [ "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul"
                 "Aug" "Sep" "Oct" "Nov" "Dec" ])
 (defonce post-items (atom nil))
+(defonce post-windows (atom nil))
 (defonce index-items (atom nil))
 (defonce all-bkg-scripts (atom nil))
 
@@ -66,7 +67,7 @@
      (create-lstat file)))
   ([basedir ext paths]
    (for [file paths]
-     (create-lstat (.join path "./public" basedir (str file ext))))))
+     (create-lstat (.join path basedir (str file ext))))))
 
 (defn ls-dir
   "Create a list of ls-stats from a directory."
@@ -83,10 +84,15 @@
   ([path] {"args" path
            "markup" (.readFileSync fs path "utf8")}))
 
+(defn create-ls
+  "Create a ls-listing from a pre-existing set of files."
+  [dir ls-list]
+  {"args" dir "lsList" ls-list})
+
 (defn create-windows
   "Create the window data for the site."
   [commands-list]
-  { "windows" (for [cmds commands-list]
+  {"windows" (for [cmds commands-list]
                 {"commands" cmds})})
 
 (defn serve-404
@@ -132,10 +138,11 @@
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
-                            ))
+                            (serve-200 "index" res (clj->js (merge (deref post-windows)
+                                                                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
-                              (if (some #(= item %) (ls-list "." ".html" ["main" "software" "sneed"]))
+                              (if (some #(= item %) (ls-list "." ".html" ["software"]))
                                 (serve-file-to item res)
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
@@ -149,9 +156,10 @@
   []
   (reset! app (init-server))
   (reset! post-items (ls-dir "posts"))
-  (reset! index-items (create-windows [[(create-command "public/figlet.html")
-                                        (create-command "." "" ["main.html" "software.html" "sneed.html" "posts"])
-                                        (create-command "public/front.html")]]))
+  (reset! post-windows (create-windows [[(create-ls "posts" post-items)]]))
+  (reset! index-items (create-windows [[(create-command "figlet.html")
+                                        (create-command "." "" ["software.html" "posts"])
+                                        (create-command "front.html")]]))
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
                                   :when (and (= (.extname path file) ".js") (not= file "backs.js"))]
