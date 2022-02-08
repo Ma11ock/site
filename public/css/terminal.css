@@ -29,7 +29,8 @@ a:active {
   margin: 0 auto;
   padding: 0;
   white-space: pre-wrap;
-  color: var(--grey);
+  color: var(--white);
+  text-shadow: 0 0 4px var(--white);
 }
 
 .topl:hover {
