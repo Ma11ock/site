@@ -115,12 +115,21 @@ h4 {
   padding: 0;
 }
 
+
 .twin p, span {
   margin: 0 auto;
   padding: 0;
-  white-space: pre-wrap;
   color: var(--white);
   text-shadow: 0 0 4px var(--white);
+}
+
+.ls p {
+  white-space: pre-wrap;
+}
+
+.cat p {
+  white-space: normal;
+  margin-bottom: 1.5em;
 }
 
 .prompt1 {

@@ -45,7 +45,6 @@
 .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
 .org-center { margin-left: auto; margin-right: auto; text-align: center; }
 .underline { text-decoration: underline; }
-#postamble p, #preamble p { font-size: 90%; margin: .2em; }
 p.verse { margin-left: 3%; }
 pre :not(#main-page-title) {
   border: 1px solid #ccc;
