@@ -91,13 +91,13 @@
 
 (defn serve-404
   "Serve the 404 page from path to res."
-  [file res] (.render (.status res 404) "404"))
+  [file ^js res] (.. res (status 404)))
 
 (defn serve-200
   "Serve a page with result 200."
-  ([template res] (.render (.status res 200) template))
-  ([template res obj]
-   (.. res (status 200) (render template obj))))
+  ([template ^js res] (.. res (status 200) (render template)))
+   ([template ^js res obj]
+    (.. res (status 200) (render template obj))))
 
 
 (defn serve-file-to
@@ -126,22 +126,22 @@
     (.set server "views" "./views")
 
     ;; Server paths.
-    (.get server "/posts/:post" (fn [req res next]
+    (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
                                     (if (some #(= post %) post-items)
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
-    (.get server "/posts" (fn [req res next]
+    (.get server "/posts" (fn [^js req res next]
                             ))
-    (.get server "/:item" (fn [req res next]
+    (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               (if (some #(= item %) (ls-list "." ".html" ["main" "software" "sneed"]))
                                 (serve-file-to item res)
                                 (serve-404 item res)))))
-    (.get server "/" (fn [req res next]
+    (.get server "/" (fn [^js req res next]
                        (serve-200 "index" res (clj->js (merge (deref index-items)
                                                               {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
-    (.get server "*" (fn [req res next] (serve-404 "Sneed" res)))
+    (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
 (defn start!

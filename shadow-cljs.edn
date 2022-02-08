@@ -13,6 +13,10 @@
         :main rmjxyz.app/main!
         :devtools {:after-load rmjxyz.app/reload!
                    :repl-pprint true}
+        :release {:optimizations :advanced
+                  :source-map true
+                  :source-map-detail-level :all}
+        :compiler-options {:output-feature-set :es8}
         }
   }
  }
