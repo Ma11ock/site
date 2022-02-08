@@ -53,7 +53,7 @@
                      (permissions-to-string (js/parseInt (second unixFilePerms)))
                      (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
        :numLinks (.-nlink stats)
-       :fileSize (.-size stats)
+       :fileSize (gstring/format "%4d" (.-size stats))
        :mtime (ls-time (.-mtimeMs stats))
        :basename (.basename path file-path) }
       ;; TODO actually deal with error.
