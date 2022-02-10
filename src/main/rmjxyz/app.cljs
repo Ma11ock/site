@@ -71,9 +71,11 @@
 
 (defn ls-dir
   "Create a list of ls-stats from a directory."
-  [dir-path]
+  [dir-path ext]
   (when (and (.existsSync fs dir-path) (.isDirectory (.lstatSync fs dir-path)))
-    (ls-list (.readdirSync fs dir-path))))
+    (vec (for [file (.readdirSync fs dir-path)
+               :when (= (.extname path file) ext)]
+           (create-lstat file)))))
 
 (defn create-command
   "Create a command object for rendering in the website."
@@ -134,7 +136,7 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (if (some #(= post %) post-items)
+                                    (if (some #(= post %) (get post-items :content))
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
@@ -155,11 +157,12 @@
   "Start the server."
   []
   (reset! app (init-server))
-  (reset! post-items (ls-dir "posts"))
-  (reset! post-windows (create-windows [[(create-ls "posts" post-items)]]))
-  (reset! index-items (create-windows [[(create-command "figlet.html")
-                                        (create-command "." "" ["software.html" "posts"])
-                                        (create-command "front.html")]]))
+  (reset! post-items {:when (js/Date.) :content (ls-dir "posts" ".handlebars")})
+  (reset! post-windows (create-windows [[(create-ls "posts" (get post-items :content))]]))
+  ;; TODO put these in a json object. 
+  (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars")
+                                        (create-command "./content/partials" "" ["software.handlebars" "posts"])
+                                        (create-command "./content/partials/front.handlebars")]]))
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
                                   :when (and (= (.extname path file) ".js") (not= file "backs.js"))]
