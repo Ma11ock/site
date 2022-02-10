@@ -75,7 +75,7 @@
   (when (and (.existsSync fs dir-path) (.isDirectory (.lstatSync fs dir-path)))
     (vec (for [file (.readdirSync fs dir-path)
                :when (= (.extname path file) ext)]
-           (create-lstat file)))))
+           (create-lstat (.join path dir-path file))))))
 
 (defn create-command
   "Create a command object for rendering in the website."
@@ -136,11 +136,11 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (if (some #(= post %) (get post-items :content))
+                                    (if (some #(= post %) (get @post-items :content))
                                       (serve-file-to post res)
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
-                            (serve-200 "index" res (clj->js (merge (deref post-windows)
+                            (serve-200 "index" res (clj->js (merge @post-windows
                                                                    {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
@@ -148,7 +148,7 @@
                                 (serve-file-to item res)
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
-                       (serve-200 "index" res (clj->js (merge (deref index-items)
+                       (serve-200 "index" res (clj->js (merge @index-items
                                                               {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
     (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
@@ -157,8 +157,8 @@
   "Start the server."
   []
   (reset! app (init-server))
-  (reset! post-items {:when (js/Date.) :content (ls-dir "posts" ".handlebars")})
-  (reset! post-windows (create-windows [[(create-ls "posts" (get post-items :content))]]))
+  (reset! post-items {:when (js/Date.) :content (ls-dir "./content/partials/posts" ".handlebars")})
+  (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
   ;; TODO put these in a json object. 
   (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars")
                                         (create-command "./content/partials" "" ["software.handlebars" "posts"])
