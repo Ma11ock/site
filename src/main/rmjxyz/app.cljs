@@ -32,6 +32,11 @@
   [mode]
   (nth permStrings mode nil))
 
+(defn get-file-name
+  "Get just the name of a file (no directory, no extension)."
+  [file-path]
+  (.-name (. path parse file-path)))
+
 (defn ls-time
   "Convert time stamp in milliseconds to LS time format."
   [timeMS]
@@ -56,7 +61,7 @@
        :numLinks (.-nlink stats)
        :fileSize (gstring/format "%4d" (.-size stats))
        :mtime (ls-time (.-mtimeMs stats))
-       :basename (.-name (.parse path (.basename path file-path))) }
+       :basename (get-file-name (.basename path file-path)) }
       ;; TODO actually deal with error.
       (js/console.error "Could not stat" file-path))))
 
@@ -80,11 +85,11 @@
 (defn create-command
   "Create a command object for rendering in the website."
   ;; LS list.
-  ([dir ext paths] {:args dir
-                    :lsList (ls-list dir ext paths)})
+  ([dir ext paths display-path] {:args (if display-path display-path dir)
+                                 :lsList (ls-list dir ext paths)})
   ;; Cat.
-  ([the-path trim-path] {:args the-path
-                         :markup (if trim-path (.-name (.parse path the-path)) the-path)}))
+  ([the-path trim-path] {:args (if trim-path (get-file-name the-path) the-path)
+                         :markup (get-file-name the-path)}))
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
@@ -138,12 +143,12 @@
                                   (let [post (.toLowerCase (.-post (.-params req)))]
                                     (js/console.log (clj->js (get @post-items :content)))
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
-                                      (serve-200 "index" res (clj->js (merge (create-windows [[(create-command (.join path "posts" post) false)]])
+                                      (serve-200 "index" res (clj->js (merge (create-windows [[(create-command (.join path "posts" post) true)]])
                                                                              {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
                             (serve-200 "index" res (clj->js (merge @post-windows
-                                                                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
+                                                                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               (if (some #(= item %) (ls-list "." ".html" ["software"]))
@@ -151,7 +156,7 @@
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
                        (serve-200 "index" res (clj->js (merge @index-items
-                                                              {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth (deref all-bkg-scripts)))})))))
+                                                              {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))))
     (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
@@ -163,7 +168,7 @@
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
   ;; TODO put these in a json object. 
   (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars" true)
-                                        (create-command "./content/partials" "" ["software.handlebars" "posts"])
+                                        (create-command "./content/partials" "" ["software.handlebars" "posts"] "~")
                                         (create-command "./content/partials/front.handlebars" true)]]))
 
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
