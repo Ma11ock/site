@@ -56,7 +56,7 @@
        :numLinks (.-nlink stats)
        :fileSize (gstring/format "%4d" (.-size stats))
        :mtime (ls-time (.-mtimeMs stats))
-       :basename (.basename path file-path) }
+       :basename (.-name (.parse path (.basename path file-path))) }
       ;; TODO actually deal with error.
       (js/console.error "Could not stat" file-path))))
 
@@ -83,8 +83,8 @@
   ([dir ext paths] {"args" dir
                     "lsList" (ls-list dir ext paths)})
   ;; Cat.
-  ([path] {"args" path
-           "markup" (.readFileSync fs path "utf8")}))
+  ([the-path] {"args" the-path
+           "markup" (.-name (.parse path the-path))}))
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
@@ -116,7 +116,7 @@
       (<p! (.readFile fs file "utf8" (fn [err buf]
                                        (if err
                                          (js/console.log "Error when looking for item " file)
-                                         (serve-200 "post" res #js{ "text" buf })))))
+                                         (serve-200 "post" res #js{ :text buf })))))
       ;; TOTO internal error.
       (catch js/Error err (js/console.error err)))))
 
@@ -137,7 +137,7 @@
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
                                     (if (some #(= post %) (get @post-items :content))
-                                      (serve-file-to post res)
+                                      (serve-200 "index" res (clj->js (merge )))
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
                             (serve-200 "index" res (clj->js (merge @post-windows
