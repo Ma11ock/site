@@ -1,0 +1,24 @@
+{
+  "wins" : [
+    {
+    "cmds" : [
+      {
+      "type" : "cat",
+      "where" : "figlet.handlebars",
+      "trim" : true
+    },
+      {
+      "type" : "ls",
+      "where" : "~",
+      "what" : ["software.handlebars", "posts"],
+      "display-path" : "~"
+    },
+      {
+      "type" : "cat",
+      "where" : "front",
+      "trim" : true
+    }
+    ]
+  }
+  ]
+}
