@@ -1,0 +1,36 @@
+<h3>Manjaro Sucks (Linux these days...)</h3>
+
+<p>
+Created: Oct 31, 2021 Last Updated: Feb 7, 2022
+</p>
+
+<p>
+  Friend of mine installed M*njaro Linux about a year ago and hasn't used it since.
+  He called me for help when his system just failed to boot. Being a Linux user for
+  many years I thought it would be pretty easy to diagnose and fix the issue, especially
+  since my friend is a Linux noob and so would most likely have a stock, unconfigured install.
+</p>
+
+<p>
+  To make this post brief I'll just say that debugging the system took hours because
+  of various annoyances and bizzare idiosyncrasies. There was no boot output because the
+  Linux kernel is called with "quiet" option. This one is baffling to me because there's
+  no downside to seeing the kernel's boot messages but every distro turns them off by
+  default these days. I guess they're afraid of scaring the normies.
+</p>
+
+<p>
+  Also the Linux kernel and Nvidia drivers are managed seperately from other packages.
+  This I'm pretty sure caused the problem in the first place. Something nvidia related
+  got updated but the driver did not. This caused a black screen, but the system kept
+  trying to restart X over and over, so not even switching to a different TTY worked.
+  We were able to fix the problem by getting Linux to use the free noveau drivers via
+  GRUB. From there, we were able to fix Manjaro's package issues. 
+</p>
+
+<p>
+  Manjaro's bizzare way of managing the kernel has casued me problems as well. Years ago,
+  when trying manjaro for the first time, my system became unbootable because my kernel was
+  updated but Linux-Firmware was not... very normie friendly!
+</p>
+

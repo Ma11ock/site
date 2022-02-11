@@ -89,7 +89,9 @@
                                  :lsList (ls-list dir ext paths)})
   ;; Cat.
   ([the-path trim-path] {:args (if trim-path (get-file-name the-path) the-path)
-                         :markup (get-file-name the-path)}))
+                         :markup (if trim-path
+                                   (get-file-name the-path)
+                                   the-path)}))
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
@@ -113,17 +115,13 @@
    (.. res (status 200) (render template obj))))
 
 
-(defn serve-file-to
-  "Serve file to res asynchronously."
-  [file res]
-  (go
-    (try
-      (<p! (.readFile fs file "utf8" (fn [err buf]
-                                       (if err
-                                         (js/console.log "Error when looking for item " file)
-                                         (serve-200 "post" res #js{ :text buf })))))
-      ;; TOTO internal error.
-      (catch js/Error err (js/console.error err)))))
+
+(defn index-information
+  "Make a JS object for use in index.handlebars."
+  [window-list]
+  (clj->js (merge window-list
+                  {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
+  
 
 (defn init-server 
   "Set the server's routes."
@@ -141,18 +139,16 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (js/console.log (clj->js (get @post-items :content)))
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
-                                      (serve-200 "index" res (clj->js (merge (create-windows [[(create-command (.join path "posts" post) true)]])
-                                                                             {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
+                                      (serve-200 "index" res (index-information
+                                                              (create-windows [[(create-command (.join path "posts" post) false)]])))
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
-                            (serve-200 "index" res (clj->js (merge @post-windows
-                                                                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))))
+                            (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
-                              (if (some #(= item %) (ls-list "." ".html" ["software"]))
-                                (serve-file-to item res)
+                              (if (some #(= item %) (ls-list "." ".handlebars" ["software"]))
+                                (serve-200 item res (index-information (create-windows [[(create-command post) false]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
                        (serve-200 "index" res (clj->js (merge @index-items
