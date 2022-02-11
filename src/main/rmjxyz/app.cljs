@@ -80,32 +80,32 @@
 (defn create-command
   "Create a command object for rendering in the website."
   ;; LS list.
-  ([dir ext paths] {"args" dir
-                    "lsList" (ls-list dir ext paths)})
+  ([dir ext paths] {:args dir
+                    :lsList (ls-list dir ext paths)})
   ;; Cat.
-  ([the-path] {"args" the-path
-           "markup" (.-name (.parse path the-path))}))
+  ([the-path trim-path] {:args the-path
+                         :markup (if trim-path (.-name (.parse path the-path)) the-path)}))
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
   [dir ls-list]
-  {"args" dir "lsList" ls-list})
+  {:args dir :lsList ls-list})
 
 (defn create-windows
   "Create the window data for the site."
   [commands-list]
-  {"windows" (for [cmds commands-list]
-                {"commands" cmds})})
+  {:windows (for [cmds commands-list]
+                {:commands cmds})})
 
 (defn serve-404
   "Serve the 404 page from path to res."
-  [file ^js res] (.. res (status 404)))
+  [file ^js res] (.. res (status 404) (render "404")))
 
 (defn serve-200
   "Serve a page with result 200."
   ([template ^js res] (.. res (status 200) (render template)))
-   ([template ^js res obj]
-    (.. res (status 200) (render template obj))))
+  ([template ^js res obj]
+   (.. res (status 200) (render template obj))))
 
 
 (defn serve-file-to
@@ -136,8 +136,10 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (if (some #(= post %) (get @post-items :content))
-                                      (serve-200 "index" res (clj->js (merge )))
+                                    (js/console.log (clj->js (get @post-items :content)))
+                                    (if (some #(= post (get % :basename)) (get @post-items :content))
+                                      (serve-200 "index" res (clj->js (merge (create-windows [[(create-command (.join path "posts" post) false)]])
+                                                                             {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
                             (serve-200 "index" res (clj->js (merge @post-windows
@@ -160,9 +162,10 @@
   (reset! post-items {:when (js/Date.) :content (ls-dir "./content/partials/posts" ".handlebars")})
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
   ;; TODO put these in a json object. 
-  (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars")
+  (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars" true)
                                         (create-command "./content/partials" "" ["software.handlebars" "posts"])
-                                        (create-command "./content/partials/front.handlebars")]]))
+                                        (create-command "./content/partials/front.handlebars" true)]]))
+
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
                                   :when (and (= (.extname path file) ".js") (not= file "backs.js"))]
