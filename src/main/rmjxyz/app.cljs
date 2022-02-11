@@ -121,7 +121,24 @@
   [window-list]
   (clj->js (merge window-list
                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
-  
+
+
+(defn json-create-windows
+  "Create a windows vector from JSON file."
+  [json-path]
+  (let [^js obj (.parse js/JSON (.readFileSync fs json-path "utf8"))]
+    (create-windows
+     (vec
+      (for [^js win (.-wins obj)]
+        (vec
+         (for [^js cmd (.-cmds win)]
+           (cond
+             (= (.-type cmd) "cat") (create-command (.-where cmd)
+                                                    (when (.-trim cmd) (.-trim cmd)))
+             (= (.-type cmd) "ls") (create-command (. path dirname json-path)
+                                                   (if (.-ext cmd) (.-ext cmd) "")
+                                                   (.-what cmd)
+                                                   (when (.-display-path cmd) (.-display-path cmd)))))))))))
 
 (defn init-server 
   "Set the server's routes."
@@ -147,12 +164,12 @@
                             (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
-                              (if (some #(= item %) (ls-list "." ".handlebars" ["software"]))
-                                (serve-200 item res (index-information (create-windows [[(create-command post) false]])))
+                              ;; TODO fix file stat situation.
+                              (if (some #(= item (get % :basename)) (ls-list "./content/partials/" ".handlebars" ["software"]))
+                                (serve-200 "index" res (index-information (create-windows [[(create-command item false)]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
-                       (serve-200 "index" res (clj->js (merge @index-items
-                                                              {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))))
+                       (serve-200 "index" res (index-information @index-items))))
     (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
@@ -163,9 +180,7 @@
   (reset! post-items {:when (js/Date.) :content (ls-dir "./content/partials/posts" ".handlebars")})
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
   ;; TODO put these in a json object. 
-  (reset! index-items (create-windows [[(create-command "./content/partials/figlet.handlebars" true)
-                                        (create-command "./content/partials" "" ["software.handlebars" "posts"] "~")
-                                        (create-command "./content/partials/front.handlebars" true)]]))
+  (reset! index-items (json-create-windows "./content/partials/index.json"))
 
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
