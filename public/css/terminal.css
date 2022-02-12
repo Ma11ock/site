@@ -47,6 +47,14 @@ h4 {
   font-size: 0.8em;
 }
 
+h3 {
+  margin: 0 auto;
+  padding: 0;
+  color: var(--white);
+  text-shadow: 0 0 4px var(--white);
+  font-family: monospace;
+}
+
 #taskbar {
   width: 100%;
 }
@@ -192,3 +200,31 @@ body {
 }
 
 
+table {
+  width: 100%;
+}
+
+table, th, td {
+  border: 0.1em solid var(--gray);
+  
+}
+
+td {
+  text-align: left;
+}
+
+tr:first-child td {
+  vertical-align: center;
+}
+
+
+th, td {
+  margin: 0 auto;
+  padding: 0;
+  color: var(--white);
+  text-shadow: 0 0 4px var(--white);
+}
+
+th {
+  color: var(--spring_green1);
+}

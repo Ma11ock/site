@@ -162,7 +162,6 @@ pre.src-nxml:before { content: 'XML'; }
    (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
 pre.src-conf:before { content: 'Configuration File'; }
 
-table { border-collapse:collapse; }
 caption.t-above { caption-side: top; }
 caption.t-bottom { caption-side: bottom; }
 td, th { vertical-align:top;  }
