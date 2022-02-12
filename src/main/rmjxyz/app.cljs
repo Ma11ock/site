@@ -89,9 +89,7 @@
                                  :lsList (ls-list dir ext paths)})
   ;; Cat.
   ([the-path trim-path] {:args (if trim-path (get-file-name the-path) the-path)
-                         :markup (if trim-path
-                                   (get-file-name the-path)
-                                   the-path)}))
+                         :markup the-path}))
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
@@ -134,11 +132,11 @@
          (for [^js cmd (.-cmds win)]
            (cond
              (= (.-type cmd) "cat") (create-command (.-where cmd)
-                                                    (when (.-trim cmd) (.-trim cmd)))
-             (= (.-type cmd) "ls") (create-command (. path dirname json-path)
+                                                    (when (.-trim cmd) true))
+             (= (.-type cmd) "ls") (create-command (.dirname path json-path)
                                                    (if (.-ext cmd) (.-ext cmd) "")
                                                    (.-what cmd)
-                                                   (when (.-display-path cmd) (.-display-path cmd)))))))))))
+                                                   (when (.-where cmd) (.-where cmd)))))))))))
 
 (defn init-server 
   "Set the server's routes."
@@ -149,24 +147,24 @@
     (.use server (.static express (.join path (.cwd process) "public")))
     (.use server (.static express (.join path (.cwd process) "external")))
     (.use server (.json express))
-    (.engine server "handlebars" (engine (clj->js { :defaultLayout "main" })))
+    (.engine server "handlebars" (engine (clj->js {:defaultLayout "main"})))
     (.set server "view engine" "handlebars")
-    (.set server "views" "./views")
+    (.set server "views" (.join path (.cwd process) "views"))
 
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
                                       (serve-200 "index" res (index-information
-                                                              (create-windows [[(create-command (.join path "posts" post) false)]])))
+                                                              (create-windows [[(create-command (.join path "content/posts" post) false)]])))
                                       (serve-404 post res)))))
     (.get server "/posts" (fn [^js req res next]
                             (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               ;; TODO fix file stat situation.
-                              (if (some #(= item (get % :basename)) (ls-list "./content/partials/" ".handlebars" ["software"]))
-                                (serve-200 "index" res (index-information (create-windows [[(create-command item false)]])))
+                              (if (some #(= item (get % :basename)) (ls-list "./views/partials/content/" ".handlebars" ["software"]))
+                                (serve-200 "index" res (index-information (create-windows [[(create-command (.join path "content/" item) true)]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
                        (serve-200 "index" res (index-information @index-items))))
@@ -177,10 +175,10 @@
   "Start the server."
   []
   (reset! app (init-server))
-  (reset! post-items {:when (js/Date.) :content (ls-dir "./content/partials/posts" ".handlebars")})
+  (reset! post-items {:when (js/Date.) :content (ls-dir "./views/partials/content/posts" ".handlebars")})
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
   ;; TODO put these in a json object. 
-  (reset! index-items (json-create-windows "./content/partials/index.json"))
+  (reset! index-items (json-create-windows "./views/partials/content/index.json"))
 
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
