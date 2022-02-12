@@ -54,10 +54,10 @@
   (let [stats (.statSync fs file-path)
         unixFilePerms (when stats (.toString (bit-and (.-mode stats) (js/parseInt "777" 8)) 8))]
     (if stats
-      { :perms (str (if (.isDirectory stats) "d" "-")
-                     (permissions-to-string (js/parseInt (first unixFilePerms)))
-                     (permissions-to-string (js/parseInt (second unixFilePerms)))
-                     (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
+      {:perms (str (if (.isDirectory stats) "d" "-")
+                   (permissions-to-string (js/parseInt (first unixFilePerms)))
+                   (permissions-to-string (js/parseInt (second unixFilePerms)))
+                   (permissions-to-string (js/parseInt (nth unixFilePerms 2))))
        :numLinks (.-nlink stats)
        :fileSize (gstring/format "%4d" (.-size stats))
        :mtime (ls-time (.-mtimeMs stats))
@@ -93,8 +93,11 @@
 
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
-  [dir ls-list]
-  {:args dir :lsList ls-list})
+  [dir ls-list site-path]
+     (js/console.log "Sneed")
+  {:args dir :lsList 
+   (for [new-stat ls-list]
+     (assoc new-stat :basename (.join path site-path (get new-stat :basename))))})
 
 (defn create-windows
   "Create the window data for the site."
@@ -151,13 +154,16 @@
     (.set server "view engine" "handlebars")
     (.set server "views" (.join path (.cwd process) "views"))
 
+
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
+                                    (js/console.log "Post is " post)
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
                                       (serve-200 "index" res (index-information
-                                                              (create-windows [[(create-command (.join path "content/posts" post) false)]])))
+                                                              (create-windows [[(create-command (.join path "content/posts" post) true)]])))
                                       (serve-404 post res)))))
+
     (.get server "/posts" (fn [^js req res next]
                             (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
@@ -176,7 +182,7 @@
   []
   (reset! app (init-server))
   (reset! post-items {:when (js/Date.) :content (ls-dir "./views/partials/content/posts" ".handlebars")})
-  (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content))]]))
+  (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content) "posts")]]))
   ;; TODO put these in a json object. 
   (reset! index-items (json-create-windows "./views/partials/content/index.json"))
 
