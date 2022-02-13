@@ -14,99 +14,93 @@
     <link rel="shortcut icon" type="image/x-icon" href="/res/favicon-32x32.ico">
   </head>
   <body>
-    <div id="preamble" class="status">
-      <div id="task-meta" class="topl">
-        <h4 style="margin-left:1em; margin-top:0.5em;">Links</h4>
-        <hr>
+    <nav>
+      <ul>
+        <li>
+          <a href="/"><img src="/res/user-home.png" alt="Homepage"></a>
+          <h4>Home</h4>
+        </li>
+
+        <li>
+          <a href="/posts/"><img src="/res/folder-documents.png" alt="Blog"></a>
+          <h4>Blog</h4>
+        </li>
+
+        <li>
+          <a href="/files/"><img src="/res/ktorrent.png" alt="Files"></a>
+          <h4>Files</h4>
+        </li>
         
-        <div id="taskbar">
-          <div id="home">
-            <a href="/"><img src="/res/user-home.png" alt="Homepage" class="taskimg"></a>
-            <h4>Home</h4>
-          </div>
+        <li>
+          <a href="https://git.ryanmj.xyz"><img src="/res/folder-git.png" alt="git"></a>
+          <h4>Git Server</h4>
+        </li>
 
-          <div id="blog">
-            <a href="/posts/"><img src="/res/folder-documents.png" alt="Blog" class="taskimg"></a>
-            <h4>Blog</h4>
-          </div>
+        <li>
+          <a href="mailto:ryan@ryanmj.xyz"><img alt="Email me" src="/res/kopete.png"></a>
+          <h4>Contact Me</h4>
+        </li>
+      </ul>
+    </nav>
+    <!--                                          
+         _____ _            ___           _           _        _       _ 
+         |_   _| |__   ___  |_ _|_ __   __| |_   _ ___| |_ _ __(_) __ _| |
+         | | | '_ \ / _ \  | || '_ \ / _` | | | / __| __| '__| |/ _` | |
+         | | | | | |  __/  | || | | | (_| | |_| \__ \ |_| |  | | (_| | |
+         |_| |_| |_|\___| |___|_| |_|\__,_|\__,_|___/\__|_|  |_|\__,_|_|
+         
+         ____                 _       _   _                               _ 
+         |  _ \ _____   _____ | |_   _| |_(_) ___  _ __     __ _ _ __   __| |
+         | |_) / _ \ \ / / _ \| | | | | __| |/ _ \| '_ \   / _` | '_ \ / _` |
+         |  _ <  __/\ V / (_) | | |_| | |_| | (_) | | | | | (_| | | | | (_| |
+         |_| \_\___| \_/ \___/|_|\__,_|\__|_|\___/|_| |_|  \__,_|_| |_|\__,_|
+         
+         _ _                                                                       
+         (_) |_ ___    ___ ___  _ __  ___  ___  __ _ _   _  ___ _ __   ___ ___  ___ 
+         | | __/ __|  / __/ _ \| '_ \/ __|/ _ \/ _` | | | |/ _ \ '_ \ / __/ _ \/ __|
+         | | |_\__ \ | (_| (_) | | | \__ \  __/ (_| | |_| |  __/ | | | (_|  __/\__ \
+         |_|\__|___/  \___\___/|_| |_|___/\___|\__, |\__,_|\___|_| |_|\___\___||___/
+         |_|                               
+         _                       _                             
+         | |__   __ ___   _____  | |__   ___  ___ _ __     __ _ 
+         | '_ \ / _` \ \ / / _ \ | '_ \ / _ \/ _ \ '_ \   / _` |
+         | | | | (_| |\ V /  __/ | |_) |  __/  __/ | | | | (_| |
+         |_| |_|\__,_| \_/ \___| |_.__/ \___|\___|_| |_|  \__,_|
+         
+         _ _               _               __              _   _          
+         __| (_)___  __ _ ___| |_ ___ _ __   / _| ___  _ __  | |_| |__   ___ 
+         / _` | / __|/ _` / __| __/ _ \ '__| | |_ / _ \| '__| | __| '_ \ / _ \
+         | (_| | \__ \ (_| \__ \ ||  __/ |    |  _| (_) | |    | |_| | | |  __/
+         \__,_|_|___/\__,_|___/\__\___|_|    |_|  \___/|_|     \__|_| |_|\___|
+         
+         _                                                        
+         | |__  _   _ _ __ ___   __ _ _ __    _ __ __ _  ___ ___   
+         | '_ \| | | | '_ ` _ \ / _` | '_ \  | '__/ _` |/ __/ _ \  
+         | | | | |_| | | | | | | (_| | | | | | | | (_| | (_|  __/_ 
+         |_| |_|\__,_|_| |_| |_|\__,_|_| |_| |_|  \__,_|\___\___(_)
+    -->                                         
+    {{{body}}}
+    <div class="fttr">
+      <a href="https://www.gnu.org/software/emacs/">
+        <img alt="POWERED BY EMACS" src="/res/stickies/emacs.png" />
+      </a>
+      <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
+        <img alt="GPLv3" src="/res/stickies/gplv3.png" />
+      </a>
+      <a href="https://www.sxemacs.org/">
+        <img alt="POWERED BY SXEMACS" src="/res/stickies/sxe.png" />
+      </a>
+      <a href="https://www.xemacs.org/">
+        <img alt="POWERED BY XEMACS" src="/res/stickies/xe.png" />
+      </a>
 
-          <div id="files">
-            <a href="/files/"><img src="/res/ktorrent.png" alt="Files" class="taskimg"></a>
-            <h4>Files</h4>
-          </div>
-          
-          <div id="git-server">
-            <a href="https://git.ryanmj.xyz"><img src="/res/folder-git.png" alt="git" class="taskimg"></a>
-            <h4>Git Server</h4>
-          </div>
-
-          <div id="contact-me">
-            <a href="mailto:ryan@ryanmj.xyz"><img alt="Email me" src="/res/kopete.png" class="taskimg"></a>
-            <h4>Contact Me</h4>
-          </div>
-        </div>
-      </div>
-
-<!--                                          
- _____ _            ___           _           _        _       _ 
-|_   _| |__   ___  |_ _|_ __   __| |_   _ ___| |_ _ __(_) __ _| |
-  | | | '_ \ / _ \  | || '_ \ / _` | | | / __| __| '__| |/ _` | |
-  | | | | | |  __/  | || | | | (_| | |_| \__ \ |_| |  | | (_| | |
-  |_| |_| |_|\___| |___|_| |_|\__,_|\__,_|___/\__|_|  |_|\__,_|_|
-                                                                 
- ____                 _       _   _                               _ 
-|  _ \ _____   _____ | |_   _| |_(_) ___  _ __     __ _ _ __   __| |
-| |_) / _ \ \ / / _ \| | | | | __| |/ _ \| '_ \   / _` | '_ \ / _` |
-|  _ <  __/\ V / (_) | | |_| | |_| | (_) | | | | | (_| | | | | (_| |
-|_| \_\___| \_/ \___/|_|\__,_|\__|_|\___/|_| |_|  \__,_|_| |_|\__,_|
-                                                                    
- _ _                                                                       
-(_) |_ ___    ___ ___  _ __  ___  ___  __ _ _   _  ___ _ __   ___ ___  ___ 
-| | __/ __|  / __/ _ \| '_ \/ __|/ _ \/ _` | | | |/ _ \ '_ \ / __/ _ \/ __|
-| | |_\__ \ | (_| (_) | | | \__ \  __/ (_| | |_| |  __/ | | | (_|  __/\__ \
-|_|\__|___/  \___\___/|_| |_|___/\___|\__, |\__,_|\___|_| |_|\___\___||___/
-                                         |_|                               
- _                       _                             
-| |__   __ ___   _____  | |__   ___  ___ _ __     __ _ 
-| '_ \ / _` \ \ / / _ \ | '_ \ / _ \/ _ \ '_ \   / _` |
-| | | | (_| |\ V /  __/ | |_) |  __/  __/ | | | | (_| |
-|_| |_|\__,_| \_/ \___| |_.__/ \___|\___|_| |_|  \__,_|
-                                                       
-     _ _               _               __              _   _          
-  __| (_)___  __ _ ___| |_ ___ _ __   / _| ___  _ __  | |_| |__   ___ 
- / _` | / __|/ _` / __| __/ _ \ '__| | |_ / _ \| '__| | __| '_ \ / _ \
-| (_| | \__ \ (_| \__ \ ||  __/ |    |  _| (_) | |    | |_| | | |  __/
- \__,_|_|___/\__,_|___/\__\___|_|    |_|  \___/|_|     \__|_| |_|\___|
-                                                                      
- _                                                        
-| |__  _   _ _ __ ___   __ _ _ __    _ __ __ _  ___ ___   
-| '_ \| | | | '_ ` _ \ / _` | '_ \  | '__/ _` |/ __/ _ \  
-| | | | |_| | | | | | | (_| | | | | | | | (_| | (_|  __/_ 
-|_| |_|\__,_|_| |_| |_|\__,_|_| |_| |_|  \__,_|\___\___(_)
--->                                         
-      {{{body}}}
-      <div class="fttr">
-        <a href="https://www.gnu.org/software/emacs/">
-          <img alt="POWERED BY EMACS" src="/res/stickies/emacs.png" />
-        </a>
-        <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
-          <img alt="GPLv3" src="/res/stickies/gplv3.png" />
-        </a>
-        <a href="https://www.sxemacs.org/">
-          <img alt="POWERED BY SXEMACS" src="/res/stickies/sxe.png" />
-        </a>
-        <a href="https://www.xemacs.org/">
-          <img alt="POWERED BY XEMACS" src="/res/stickies/xe.png" />
-        </a>
-
-        <a href='https://ipv6-test.com/validate.php?url=referer'>
-          <img src='/res/stickies/button-ipv6-big.png' alt='ipv6 ready' title='ipv6 ready'>
-        </a>
-        
-        <a href="https://jigsaw.w3.org/css-validator/check/referer">
-          <img src="/res/stickies/vcss.gif" alt="Valid CSS!">
-        </a>
-      </div>
+      <a href='https://ipv6-test.com/validate.php?url=referer'>
+        <img src='/res/stickies/button-ipv6-big.png' alt='ipv6 ready' title='ipv6 ready'>
+      </a>
+      
+      <a href="https://jigsaw.w3.org/css-validator/check/referer">
+        <img src="/res/stickies/vcss.gif" alt="Valid CSS!">
+      </a>
     </div>
 
   </body>

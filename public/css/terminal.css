@@ -1,5 +1,15 @@
-@import './rgb.css';
-@import './main.css';
+
+:root {
+  --dodger_blue4:#104e8b;
+  --dark_orchid2:#b23aee;
+  --green2:#00ee00;
+  --white:#ffffff;
+  --bisque4:#8b7d6b;
+  --blue:#0000ff;
+  --spring_green:#00ff7f;
+  --gray:#bebebe;
+  --yellow:#ffff00;
+}
 
 /* unvisited link */
 a:link {
@@ -33,7 +43,7 @@ a:active {
   text-shadow: 0 0 4px var(--white);
 }
 
-.topl:hover {
+nav:hover {
   box-shadow: 0 0 0.2em 0.2em #0ff;
 }
 
@@ -43,7 +53,7 @@ h4 {
   margin-top: 0;
   color: white;
   font-color: white;
-  font-family: "Cantarell", Sans-Serif;
+  font-family: Sans-Serif;
   font-size: 0.8em;
 }
 
@@ -59,51 +69,63 @@ h3 {
   width: 100%;
 }
 
-#task-meta {
-  width: 75%;
-  padding: 0;
-  margin: auto;
-  margin-top: auto;
-  background-color: rgba(41,44,45,0.6);
-  border: 0.1em solid white;
+nav {
   text-align: center;
-  text-shadow:
-    -1px -1px 0 #000,  
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-}
-
-#taskbar div {
-  display: inline-block;
-  zoom: 1;
-  width: 19%;
-  text-align:center;
+  clear: both;
   margin: auto;
-  margin-top: auto;
-  margin-bottom: 5%;
+  max-width: 175px;
+  max-height: 90%;
+}
+
+nav li {
+  dispaly: inline-block;
+  list-style: none;
+  padding: 0.5em;
+  max-width: 7em;
+  max-height: 9em;
+}
+
+nav ul {
   padding: 0;
+  margin: 0.5em;
 }
 
+@media (min-width: 1200px) {
+  nav {
+    float: left;
+    width: 10%;
+    position: fixed;
+    text-align: left;
+    font-size: large;
+    
+    padding: 0;
+    margin: auto;
+    margin-top: auto;
+    background-color: rgba(41,44,45,0.9);
+    border: 0.1em solid white;
+    text-shadow:
+      -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
 
-
-#task-meta hr {
-  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffffff+0,f3f3f3+50,ededed+51,ffffff+100;White+Gloss+%232 */
-  background: #ffffff; /* Old browsers */
-  background: -moz-linear-gradient(top,  #ffffff 0%, #f3f3f3 50%, #ededed 51%, #ffffff 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom,  #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
-
+  nav::before {
+    content: "Links";
+    text-align: center;
+    display: block;
+    font-size: large;
+    color: violet;
+    text-decoration: underline;
+    margin: 0.5em;
+  }
 }
 
-#taskbar img {
-  width: 40%;
-  height: 40%;
+nav li {
   transition: transform 0.3s;
 }
 
-.taskimg:hover {
+nav li:hover {
   transform: scale(1.5);
 }
 
@@ -217,6 +239,10 @@ tr:first-child td {
   vertical-align: center;
 }
 
+li {
+  color: var(--white);
+  text-shadow: 0 0 4px var(--white);
+}
 
 th, td {
   margin: 0 auto;
@@ -226,5 +252,5 @@ th, td {
 }
 
 th {
-  color: var(--spring_green1);
+  color: var(--spring_green);
 }
