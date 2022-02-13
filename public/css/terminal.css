@@ -9,6 +9,13 @@
   --spring_green:#00ff7f;
   --gray:#bebebe;
   --yellow:#ffff00;
+  --genwidth: 800px;
+}
+
+/* TODO fix nav bar width not jiving with window width. */
+main {
+  margin: auto;
+  width: 75%;
 }
 
 /* unvisited link */
@@ -43,9 +50,6 @@ a:active {
   text-shadow: 0 0 4px var(--white);
 }
 
-nav:hover {
-  box-shadow: 0 0 0.2em 0.2em #0ff;
-}
 
 h4 {
   padding: 0;
@@ -65,24 +69,29 @@ h3 {
   font-family: monospace;
 }
 
-#taskbar {
-  width: 100%;
-}
-
 nav {
   text-align: center;
   clear: both;
   margin: auto;
-  max-width: 175px;
-  max-height: 90%;
+  max-width: 75%;
+  background-color: rgba(41,44,45,0.9);
+  border: 0.1em solid white;
+}
+
+nav:hover {
+  box-shadow: 0 0 0.2em 0.2em #0ff;
 }
 
 nav li {
-  dispaly: inline-block;
+  display: inline-block;
   list-style: none;
-  padding: 0.5em;
   max-width: 7em;
-  max-height: 9em;
+  padding: 0.5em;
+  transition: transform 0.3s;
+}
+
+nav li:hover {
+  transform: scale(1.5);
 }
 
 nav ul {
@@ -90,26 +99,19 @@ nav ul {
   margin: 0.5em;
 }
 
+nav img {
+  max-width: 4em;
+}
+
+
 @media (min-width: 1200px) {
   nav {
     float: left;
-    width: 10%;
+    width: 10%; 
     position: fixed;
     text-align: left;
     font-size: large;
-    
-    padding: 0;
-    margin: auto;
-    margin-top: auto;
-    background-color: rgba(41,44,45,0.9);
-    border: 0.1em solid white;
-    text-shadow:
-      -1px -1px 0 #000,  
-      1px -1px 0 #000,
-      -1px 1px 0 #000,
-      1px 1px 0 #000;
   }
-
   nav::before {
     content: "Links";
     text-align: center;
@@ -119,15 +121,16 @@ nav ul {
     text-decoration: underline;
     margin: 0.5em;
   }
+  nav li {
+    display: block;
+    text-align: center;
+    margin: 0.5em auto;
+  }
+  nav img {
+    max-width: 60%;
+  }
 }
 
-nav li {
-  transition: transform 0.3s;
-}
-
-nav li:hover {
-  transform: scale(1.5);
-}
 
 .twin {
   border: 1.5em solid transparent;
@@ -135,8 +138,7 @@ nav li:hover {
   padding: 0;
   /* positioning */
   margin: 0 auto;
-  margin-top: 75px;
-  width: 75%;
+  width: 100%;
   background-color: rgba(0, 0, 0, 0.85);
   
 }
@@ -221,6 +223,7 @@ body {
   width: 75%;
 }
 
+/* Table stuff. */
 
 table {
   width: 100%;
