@@ -22,6 +22,10 @@
 (defonce index-items (atom nil))
 (defonce all-bkg-scripts (atom nil))
 (defonce item-update-time (* 1000 60 5))
+(defonce comments-list '("industrial_society" "sneed" "france"
+                         "anime" "choppa" "gigachad" "peter"
+                         "shrek" "tanku" "toem" "troll" "virusexe"
+                         "windows"))
 
 (defn mon-by-index
   "Get a month (abbreviation) by its index. Returns nil if i is out of range."
@@ -123,7 +127,8 @@
   "Make a JS object for use in index.handlebars."
   [window-list]
   (clj->js (merge window-list
-                  {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))})))
+                  {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))
+                   :comment (.join path "comments/" (rand-nth comments-list))})))
 
 
 (defn json-create-windows
@@ -193,7 +198,7 @@
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               ;; TODO fix file stat situation.
-                              (if (some #(= item (get % :basename)) (ls-list "./views/partials/content/" ".handlebars" ["software"]))
+                              (if (some #(= item (get % :basename)) (ls-list "./views/partials/content/" ".handlebars" ["software" "harmful"]))
                                 (serve-200 "index" res (index-information (create-windows [[(create-command (.join path "content/" item) true)]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
