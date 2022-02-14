@@ -21,6 +21,7 @@
 (defonce post-windows (atom nil))
 (defonce index-items (atom nil))
 (defonce all-bkg-scripts (atom nil))
+(defonce item-update-time (* 1000 60 5))
 
 (defn mon-by-index
   "Get a month (abbreviation) by its index. Returns nil if i is out of range."
@@ -61,7 +62,9 @@
        :numLinks (.-nlink stats)
        :fileSize (gstring/format "%4d" (.-size stats))
        :mtime (ls-time (.-mtimeMs stats))
-       :basename (get-file-name (.basename path file-path)) }
+       :basename (get-file-name (.basename path file-path))
+       :realpath file-path
+       }
       ;; TODO actually deal with error.
       (js/console.error "Could not stat" file-path))))
 
@@ -94,7 +97,6 @@
 (defn create-ls
   "Create a ls-listing from a pre-existing set of files."
   [dir ls-list site-path]
-     (js/console.log "Sneed")
   {:args dir :lsList 
    (for [new-stat ls-list]
      (assoc new-stat :basename (.join path site-path (get new-stat :basename))))})
@@ -140,6 +142,28 @@
                                                    (if (.-ext cmd) (.-ext cmd) "")
                                                    (.-what cmd)
                                                    (when (.-where cmd) (.-where cmd)))))))))))
+(defn get-mtime
+  "Get time (ms) when the file at file-path was updated."
+  [file-path]
+  (.-mtimeMs (.statSync fs file-path)))
+
+(defn update-files!
+  "If a list of files has changed on disk and it's been five minutes then re-read them."
+  [file-list collection-path update-func]
+  (reset! file-list
+          (let [time-ms (.getTime (get @file-list :when))]
+            (if (and (>= (- time-ms (.getTime js/Date.)) item-update-time)
+                     (> (get-mtime collection-path) time-ms))
+              ;; Update the entire list, new post added, post removed, name change, etc..
+              (update-func collection-path)
+              ;; Something was added to.
+              (vec (for [file (get file-list :content)
+                         :let [realpath (get file :realpath)]]
+                     (if (> (get-mtime realpath time-ms))
+                       (create-lstat realpath)
+                       file)))))))
+
+(defonce update-post-items (fn [dir-path] {:when (js/Date.) :content (ls-dir dir-path ".handlebars")}))
 
 (defn init-server 
   "Set the server's routes."
@@ -158,7 +182,7 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (js/console.log "Post is " post)
+                                    (update-files! post-items "./views/partials/content/posts" update-post-items)
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
                                       (serve-200 "index" res (index-information
                                                               (create-windows [[(create-command (.join path "content/posts" post) true)]])))
@@ -181,7 +205,7 @@
   "Start the server."
   []
   (reset! app (init-server))
-  (reset! post-items {:when (js/Date.) :content (ls-dir "./views/partials/content/posts" ".handlebars")})
+  (reset! post-items (update-post-items "./views/partials/content/posts"))
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content) "posts")]]))
   ;; TODO put these in a json object. 
   (reset! index-items (json-create-windows "./views/partials/content/index.json"))
