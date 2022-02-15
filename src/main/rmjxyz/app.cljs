@@ -156,19 +156,17 @@
   "If a list of files has changed on disk and it's been five minutes then re-read them."
   [file-list collection-path update-func]
   (reset! file-list
+          {:content
           (let [time-ms (.getTime (get @file-list :when))]
-            (if (and (>= (- time-ms (.getTime (js/Date.))) item-update-time)
+            (when (and (>= (- time-ms (.getTime (js/Date.))) item-update-time)
                      (> (get-mtime collection-path) time-ms))
               ;; Update the entire list, new post added, post removed, name change, etc..
-              (update-func collection-path)
-              ;; Something was added to.
-              (vec (for [file (get file-list :content)
-                         :let [realpath (get file :realpath)]]
-                     (if (> (get-mtime realpath time-ms))
-                       (create-lstat realpath)
-                       file)))))))
+              (update-func collection-path)))
+           :when (js/Date.)}))
 
-(defonce update-post-items (fn [dir-path] {:when (js/Date.) :content (ls-dir dir-path ".handlebars")}))
+(defn update-post-items [dir-path] {:when (js/Date.) :content (ls-dir dir-path ".handlebars")})
+(defn update-json-items [json-path] {:when (js/Date.) :content (json-create-windows json-path)})
+
 
 (defn init-server 
   "Set the server's routes."
@@ -198,11 +196,11 @@
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
                               ;; TODO fix file stat situation.
-                              (if (some #(= item (get % :basename)) (ls-list "./views/partials/content/" ".handlebars" ["software" "harmful"]))
+                              (if (some #(= item (get % :basename)) (get @index-items :content))
                                 (serve-200 "index" res (index-information (create-windows [[(create-command (.join path "content/" item) true)]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
-                       (serve-200 "index" res (index-information @index-items))))
+                       (serve-200 "index" res (index-information (get @index-items :content)))))
     (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
@@ -213,7 +211,7 @@
   (reset! post-items (update-post-items "./views/partials/content/posts"))
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content) "posts")]]))
   ;; TODO put these in a json object. 
-  (reset! index-items (json-create-windows "./views/partials/content/index.json"))
+  (reset! index-items (update-json-items "./views/partials/content/index.json"))
 
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
