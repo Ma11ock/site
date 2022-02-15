@@ -19,6 +19,7 @@
                 "Aug" "Sep" "Oct" "Nov" "Dec" ])
 (defonce post-items (atom nil))
 (defonce post-windows (atom nil))
+(defonce index-windows (atom nil))
 (defonce index-items (atom nil))
 (defonce all-bkg-scripts (atom nil))
 (defonce item-update-time (* 1000 60 5))
@@ -52,6 +53,11 @@
          (if (= (.getFullYear file-date) (.getFullYear (js/Date.)))
            (str (gstring/format "%02d" (.getHours file-date)) ":" (gstring/format "%02d" (.getMinutes file-date)))
            (str (.getFullYear file-date))))))
+
+(defn get-basename
+  "Get the basename of a file."
+  [file-path]
+  (.-name (.parse path (.basename path file-path))))
 
 (defn create-lstat
   "Create an LSStat object for use in rendering."
@@ -130,6 +136,17 @@
                   {:bkgScript (.join path "/site-bkgs/bin/" (rand-nth @all-bkg-scripts))
                    :comment (.join path "comments/" (rand-nth comments-list))})))
 
+(defn json-create-items
+  "Create an items list from a JSON file."
+  [json-path]
+  (let [^js obj (.parse js/JSON (.readFileSync fs json-path "utf8"))]
+    (vec
+     (flatten
+      (for [^js win (.-wins obj)]
+        (for [^js cmd (.-cmds win)
+              :when (.-what cmd)]
+          (for [^js path (.-what cmd)]
+            path)))))))
 
 (defn json-create-windows
   "Create a windows vector from JSON file."
@@ -154,19 +171,19 @@
 
 (defn update-files!
   "If a list of files has changed on disk and it's been five minutes then re-read them."
-  [file-list collection-path update-func]
-  (reset! file-list
-          {:content
-          (let [time-ms (.getTime (get @file-list :when))]
-            (when (and (>= (- time-ms (.getTime (js/Date.))) item-update-time)
-                     (> (get-mtime collection-path) time-ms))
-              ;; Update the entire list, new post added, post removed, name change, etc..
-              (update-func collection-path)))
-           :when (js/Date.)}))
+  [file-list collection-path update-func window-list window-update-func]
+  (let [time-ms (.getTime (get @file-list :when))]
+    (when (and (>= (- time-ms (.getTime (js/Date.))) item-update-time)
+               (> (get-mtime collection-path) time-ms))
+      (reset! file-list
+              {:content
+               ;; Update the entire list, new post added, post removed, name change, etc..
+               (update-func collection-path)
+               :when (js/Date.)})
+      (reset! window-list (window-update-func)))))
 
 (defn update-post-items [dir-path] {:when (js/Date.) :content (ls-dir dir-path ".handlebars")})
-(defn update-json-items [json-path] {:when (js/Date.) :content (json-create-windows json-path)})
-
+(defn update-index-items [json-path] {:when (js/Date.) :content (json-create-items json-path)})
 
 (defn init-server 
   "Set the server's routes."
@@ -191,16 +208,19 @@
                                       (serve-404 post res)))))
 
     (.get server "/posts" (fn [^js req res next]
-                            (update-files! post-items "./views/partials/content/posts" update-post-items)
+                            (update-files! post-items "./views/partials/content/posts" update-post-items post-windows
+                                           (fn [] (create-windows [[(create-ls "posts" (get @post-items :content) "posts")]])))
                             (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
-                              ;; TODO fix file stat situation.
-                              (if (some #(= item (get % :basename)) (get @index-items :content))
+                              (if (some #(= item %) (for [file-path (get @index-items :content)]
+                                                      (get-basename file-path)))
                                 (serve-200 "index" res (index-information (create-windows [[(create-command (.join path "content/" item) true)]])))
                                 (serve-404 item res)))))
     (.get server "/" (fn [^js req res next]
-                       (serve-200 "index" res (index-information (get @index-items :content)))))
+                       (update-files! index-items "./views/partials/content/index.json" update-index-items
+                                      index-windows (fn [] (json-create-windows "./views/partials/content/index.json")))
+                       (serve-200 "index" res (index-information @index-windows))))
     (.get server "*" (fn [^js req res next] (serve-404 "Sneed" res)))
     (.listen server 3000 (fn [] (println "Starting server on port 3000")))))
 
@@ -211,7 +231,8 @@
   (reset! post-items (update-post-items "./views/partials/content/posts"))
   (reset! post-windows (create-windows [[(create-ls "posts" (get @post-items :content) "posts")]]))
   ;; TODO put these in a json object. 
-  (reset! index-items (update-json-items "./views/partials/content/index.json"))
+  (reset! index-items (update-index-items "./views/partials/content/index.json"))
+  (reset! index-windows (json-create-windows "./views/partials/content/index.json"))
 
   (reset! all-bkg-scripts (let [files (.readdirSync fs "./external/site-bkgs/bin/")]
                             (for [file files
