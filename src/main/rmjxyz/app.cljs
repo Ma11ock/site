@@ -157,7 +157,7 @@
   [file-list collection-path update-func]
   (reset! file-list
           (let [time-ms (.getTime (get @file-list :when))]
-            (if (and (>= (- time-ms (.getTime js/Date.)) item-update-time)
+            (if (and (>= (- time-ms (.getTime (js/Date.))) item-update-time)
                      (> (get-mtime collection-path) time-ms))
               ;; Update the entire list, new post added, post removed, name change, etc..
               (update-func collection-path)
@@ -187,13 +187,13 @@
     ;; Server paths.
     (.get server "/posts/:post" (fn [^js req res next]
                                   (let [post (.toLowerCase (.-post (.-params req)))]
-                                    (update-files! post-items "./views/partials/content/posts" update-post-items)
                                     (if (some #(= post (get % :basename)) (get @post-items :content))
                                       (serve-200 "index" res (index-information
                                                               (create-windows [[(create-command (.join path "content/posts" post) true)]])))
                                       (serve-404 post res)))))
 
     (.get server "/posts" (fn [^js req res next]
+                            (update-files! post-items "./views/partials/content/posts" update-post-items)
                             (serve-200 "index" res (index-information @post-windows))))
     (.get server "/:item" (fn [^js req res next]
                             (let [item (.toLowerCase (.-item (.-params req)))]
