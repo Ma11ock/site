@@ -1,3 +1,0 @@
-* Recent git push part
-* Several windows for different parts of the site.
-* Move server to typescript
