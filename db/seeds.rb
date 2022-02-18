@@ -1,7 +1,8 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
-#   Character.create(name: "Luke", movie: movies.first)
+
+#post.content.attach(io: File.open('/home/ryan/TODO.org'), filename: "TODO.org", content_type: 'text')
+Dir.glob("#{Rails.root}/app/orgs/*.org") do |filename|
+  post = Post.new
+  post.content.attach(io: File.open(filename, "r:UTF-8"), filename: File.basename(filename),
+                      content_type: 'text')
+  post.save
+end
