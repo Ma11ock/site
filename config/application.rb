@@ -1,7 +1,6 @@
 require_relative "boot"
 
 require "rails/all"
-
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -18,5 +17,9 @@ module Site
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Handle 404's by myself
+    config.exceptions_app = self.routes
+    config.public_file_server.enabled = true
   end
 end

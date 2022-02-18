@@ -28,6 +28,12 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 gem "rdoc"
+
+gem "tilt"
+
+gem "org-ruby"
+
+gem "pandoc-ruby"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 

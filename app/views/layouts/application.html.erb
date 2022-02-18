@@ -1,16 +1,79 @@
-<!DOCTYPE html>
-<html>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
-    <title>Site</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- 2021-04-22 Thu 02:37 -->
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ryan's Homepage</title>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <meta name="author" content="Ryan Jeffrey" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon32x32.ico">
   </head>
-
   <body>
-    <%= yield %>
+    <nav>
+      <ul>
+        <li>
+          <a href="/"><%= image_tag '/res/user-home.webp', alt: 'Homepage' %></a>
+          <h4>Home</h4>
+        </li>
+
+        <li>
+          <a href="/posts/"><%= image_tag '/res/folder-documents.webp', alt: 'Blog' %></a>
+          <h4>Blog</h4>
+        </li>
+
+        <li>
+          <a href="/files/"><%= image_tag '/res/ktorrent.webp', alt: 'Files' %></a>
+          <h4>Files</h4>
+        </li>
+        
+        <li>
+          <a href="https://git.ryanmj.xyz"><%= image_tag '/res/folder-git.webp', alt: 'git' %></a>
+          <h4>Git Server</h4>
+        </li>
+
+        <li>
+          <a href="mailto:ryan@ryanmj.xyz"><%= image_tag '/res/kopete.webp', alt: 'Email Me' %></a>
+          <h4>Contact Me</h4>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <%= yield %>
+    </main>
+    <div class="fttr">
+      <a href="https://www.gnu.org/software/emacs/">
+        <%= image_tag '/res/stickies/emacs.webp', alt: 'POWERED BY EMACS' %>
+      </a>
+      <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
+        <%= image_tag '/res/stickies/gplv3.webp', alt: 'GPLv3'  %>
+      </a>
+      <a href="https://www.sxemacs.org/">
+        <%= image_tag '/res/stickies/sxe.webp', alt: 'POWERED BY SXEMACS' %>
+      </a>
+      <a href="https://www.xemacs.org/">
+        <%= image_tag  '/res/stickies/xe.webp', alt: 'POWERED BY XEMACS' %>
+      </a>
+
+      <a href='https://ipv6-test.com/validate.php?url=referer'>
+        <%= image_tag '/res/stickies/button-ipv6-big.webp', alt:'ipv6 ready', title: 'ipv6 ready' %>
+      </a>
+      
+      <a href="https://jigsaw.w3.org/css-validator/check/referer">
+        <%= image_tag '/res/stickies/vcss.gif', alt: 'Valid CSS!' %>
+      </a>
+
+      <a href="https://www.gimp.org/">
+        <%= image_tag '/res/stickies/gimp.webp', alt: 'Valid CSS!' %>
+      </a>
+
+      <%= image_tag '/res/stickies/chrmevil.webp', alt: 'Chrome is evil!' %>
+    </div>
   </body>
 </html>
