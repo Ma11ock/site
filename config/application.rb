@@ -31,9 +31,11 @@ def get_org_path(file_path)
 end
 
 def remove_org_from_db(file_path)
-  title = get_org_path file_path
+  dir_name = File.dirname(get_org_path file_path)
+  dir_name = dir_name == '.' ? '' : dir_name
+  url = CGI.escape(File.basename(file_path, '.*'))
   begin
-    post = Post.where(title: title).sole
+    post = Post.where(url: url).sole
     post.destroy 
   rescue => error
     # Nothing to destroy
@@ -41,21 +43,22 @@ def remove_org_from_db(file_path)
 end
 
 def add_org_to_db(file_path)
-  # TODO actually get the title of the document.
   # TODO get a description
   title = org_get_title file_path
+  dir_name = File.dirname(get_org_path file_path)
+  dir_name = dir_name == '.' ? '' : dir_name
+  url = CGI.escape(File.basename(file_path, '.*'))
   begin
-    post = Post.where(title: title).sole
+    post = Post.where(url: url).sole
     # Reset content and title.
     post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
     post.title = title
   # TODO add more rescues for different errors 
   rescue => error
     # File does not exist, create it.
-    dir_name = File.dirname(get_org_path file_path)
     Post.new(title: title, description: '',
-             where: dir_name == '.' ? '' : dir_name,
-             url: File.basename(file_path, '.*'),
+             where: dir_name,
+             url: url,
              body: Orgmode::Parser.new(File.read(file_path)).to_html).save 
   end
 end
