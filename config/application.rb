@@ -1,25 +1,70 @@
 require_relative "boot"
 
 require "rails/all"
+require 'cgi'
+require 'pathname'
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+
+# Has to be a function because Rails.root isn't defined for constant.
+def org_dir
+  "#{Rails.root}/app/orgs"
+end
+
+# Get the path to /app/org/f.org, chopping off anything before the org directory.
+def get_org_path(file_path)
+  Pathname.new(file_path).relative_path_from(org_dir).to_s
+end
+
+def remove_org_from_db(file_path)
+  bsname = File.basename(file_path)
+  begin
+    post = Post.where(title: bsname).sole
+    post.destroy 
+  rescue => error
+    # Nothing to destroy
+  end
+end
+
+def add_org_to_db(file_path)
+  # TODO actually get the title of the document.
+  # TODO get a description
+  title = File.basename(file_path)
+  begin
+    post = Post.where(title: title).sole
+    # Reset content and title.
+    post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
+    post.title = title
+  # TODO add more rescues for different errors 
+  rescue => error
+    # File does not exist, create it.
+    dir_name = File.dirname(get_org_path file_path)
+    Post.new(title: title, description: '',
+             where: dir_name == '.' ? '' : dir_name,
+             url: File.basename(file_path, '.*'),
+             body: Orgmode::Parser.new(File.read(file_path)).to_html).save 
+  end
+end
 
 module Site
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
-
     # Handle 404's by myself
     config.exceptions_app = self.routes
     config.public_file_server.enabled = true
+
+    # Init the database
+    config.after_initialize do
+      # Do change in orgs file.
+      listener = Listen.to(org_dir) do |modified, added, removed|
+        modified.each { |x| add_org_to_db x }
+        added.each { |x| add_org_to_db x }
+        removed.each { |x| remove_org_from_db x }
+      end
+      listener.start
+    end
   end
 end
