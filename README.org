@@ -1,0 +1,17 @@
+#+TITLE: Ryan's Website
+#+AUTHOR: Ryan Jeffrey
+#+EMAIL: ryan@ryanmj.xyz
+#+OPTIONS: num:nil
+
+https://ryanmj.xyz
+
+[[mailto:ryan@ryanmj.xyz][Email Me]]
+
+* What
+My website.
+
+* How
+Ruby on rails with [[https://github.com/wallyqs/org-ruby][org-ruby]], the same extension Github uses to render org mode READMEs.
+
+* Why
+Having a website is cool
