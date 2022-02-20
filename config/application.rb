@@ -12,15 +12,28 @@ def org_dir
   "#{Rails.root}/app/orgs"
 end
 
+# Get the title of a org mode file.
+def org_get_title(file_path)
+  title=''
+  File.readlines(file_path).each do |line|
+    if line.start_with?('#+TITLE:')
+      line['#+TITLE:'] = ''
+      title = line.strip
+      break
+    end
+  end
+  title
+end
+
 # Get the path to /app/org/f.org, chopping off anything before the org directory.
 def get_org_path(file_path)
   Pathname.new(file_path).relative_path_from(org_dir).to_s
 end
 
 def remove_org_from_db(file_path)
-  bsname = File.basename(file_path)
+  title = get_org_path file_path
   begin
-    post = Post.where(title: bsname).sole
+    post = Post.where(title: title).sole
     post.destroy 
   rescue => error
     # Nothing to destroy
@@ -30,7 +43,7 @@ end
 def add_org_to_db(file_path)
   # TODO actually get the title of the document.
   # TODO get a description
-  title = File.basename(file_path)
+  title = org_get_title file_path
   begin
     post = Post.where(title: title).sole
     # Reset content and title.
