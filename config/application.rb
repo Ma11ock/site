@@ -35,7 +35,7 @@ def remove_org_from_db(file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
   begin
-    post = Post.where(url: url).sole
+    post = Post.where(url: url, where: dir_name).sole
     post.destroy 
   rescue => error
     # Nothing to destroy
@@ -49,7 +49,7 @@ def add_org_to_db(file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
   begin
-    post = Post.where(url: url).sole
+    post = Post.where(url: url, where: where).sole
     # Reset content and title.
     post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
     post.title = title
