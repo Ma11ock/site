@@ -31,6 +31,9 @@ def get_org_path(file_path)
 end
 
 def remove_org_from_db(file_path)
+  # Check to see if we're actually getting an org file.
+  return if File.extname(file_path) != '.org'
+
   dir_name = File.dirname(get_org_path file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
@@ -43,6 +46,9 @@ def remove_org_from_db(file_path)
 end
 
 def add_org_to_db(file_path)
+  # Check to see if we're actually getting an org file.
+  return if File.extname(file_path) != '.org'
+
   # TODO get a description
   title = org_get_title file_path
   dir_name = File.dirname(get_org_path file_path)
