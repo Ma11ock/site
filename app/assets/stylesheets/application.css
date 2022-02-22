@@ -24,14 +24,14 @@ main {
 /* unvisited link */
 a:link {
   color: var(--fg-color1);
-  text-shadow: 0 0 4px var(--fg-color1);
+  text-shadow: 0 0 3px var(--fg-color1);
   text-decoration: none;
 }
 
 /* visited link */
 a:visited {
   color: var(--emph-color);
-  text-shadow: 0 0 4px var(--emph-color);
+  text-shadow: 0 0 3px var(--emph-color);
 }
 
 /* mouse over link */
@@ -42,23 +42,21 @@ a:hover, a:active {
 /* Mostly org titles. */
 h1 {
   color: var(--header-color);
-  text-shadow: 0 0 4px var(--header-color);
+  text-shadow: 0 0 3px var(--header-color);
 }
 
 h2 {
   margin: 0 auto;
   padding: 0;
   color: var(--header-color2);
-  text-shadow: 0 0 4px var(--header-color2);
-  text-shadow: 0 0 4px 
+  text-shadow: 0 0 3px var(--header-color2);
 }
 
 h3 {
   margin: 0 auto;
   padding: 0;
   color: var(--fg-color1);
-  text-shadow: 0 0 4px var(--fg-color1);
-  text-shadow: 0 0 4px 
+  text-shadow: 0 0 3px var(--fg-color1);
 }
 
 h4 {
@@ -66,7 +64,7 @@ h4 {
   margin: 0;
   margin-top: 0;
   color: var(--fg-color2);
-  text-shadow: 0 0 4px var(--fg-color2);
+  text-shadow: 0 0 3px var(--fg-color2);
   font-size: 0.8em;
 }
 
@@ -75,7 +73,7 @@ h5 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color3);
-  text-shadow: 0 0 4px var(--header-color3);
+  text-shadow: 0 0 3px var(--header-color3);
   font-size: 0.8em;
 }
 
@@ -84,7 +82,7 @@ h6 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color4);
-  text-shadow: 0 0 4px var(--header-color4);
+  text-shadow: 0 0 3px var(--header-color4);
   font-size: 0.8em;
 }
 nav {
@@ -121,82 +119,35 @@ nav img {
   max-width: 4em;
 }
 
-
-@media (min-width: 1200px) {
-  nav {
-    float: left;
-    width: 10%; 
-    position: fixed;
-    text-align: left;
-    font-size: large;
-  }
-  nav::before {
-    content: "Links";
-    text-align: center;
-    display: block;
-    font-size: large;
-    color: violet;
-    text-decoration: underline;
-    margin: 0.5em;
-  }
-  nav li {
-    display: block;
-    text-align: center;
-    margin: 0.5em auto;
-  }
-  nav img {
-    max-width: 60%;
-  }
-}
-
-
-.twin {
+.ewin {
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
-  
 }
 
-.tcontent {
+p {
   margin: 0 auto;
+  margin-top: 2em;
   padding: 0;
+  color: var(--fg-color);
+  text-shadow: 0 0 3px var(--fg-color);
 }
-
-
-.twin p, span {
-  margin: 0 auto;
-  padding: 0;
-  color: var(--white);
-  text-shadow: 0 0 4px var(--white);
-}
-
-p.ls {
-  white-space: pre-wrap;
-}
-
-.cat p {
-  white-space: normal;
-  margin-bottom: 1.5em;
-}
-
-
-h2 {
-  color: var(--spring_green);
-  font-size: 26pt;
-}
-
+    
 body {
   border: 1.5em solid transparent;
   border-image: url(/res/2008.webp) 19 12 round;
   padding: 0;
   /* positioning */
   margin: 0 auto;
-  background-color: var(--bg-color);
   background-repeat: no-repeat; /* Do not repeat the image */
   background-size: cover; /* Resize the background image to cover the entire container */
   font-family: monospace;
   -webkit-font-smoothing: none;
   -moz-font-smoothing: never;
   color: var(--fg-color);
+  background-color: black;
+}
+
+html {
+  z-index: 10;
 }
 
 footer {
@@ -226,16 +177,17 @@ tr:first-child td {
 }
 
 li {
-  color: var(--white);
-  text-shadow: 0 0 4px var(--white);
+  color: var(--fg-color);
+  text-shadow: 0 0 3px var(--fg-color);
 }
 
 th, td {
   margin: 0 auto;
   padding: 0;
-  text-shadow: 0 0 4px var(--fg-color);
+  text-shadow: 0 0 3px var(--fg-color);
 }
 
 th {
   color: var(--header-color2);
+  text-shadow: 0 0 3px var(--header-color2);
 }

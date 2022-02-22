@@ -6,7 +6,7 @@ require 'pathname'
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
-
+# <%= javascript_include_tag 'generated/movementInSquares', type: 'module', integrity: true %>
 # Has to be a function because Rails.root isn't defined for constant.
 def org_dir
   "#{Rails.root}/app/orgs"
@@ -37,12 +37,26 @@ def remove_org_from_db(file_path)
   dir_name = File.dirname(get_org_path file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
-  begin
-    post = Post.where(url: url, where: dir_name).sole
-    post.destroy 
-  rescue => error
-    # Nothing to destroy
-  end
+  post = Post.find_by(url: url, where: dir_name)
+  post.destroy if post
+end
+
+def update_org_db(file_path)
+  # Check to see if we're actually getting an org file.
+  return if File.extname(file_path) != '.org'
+
+  # TODO get a description
+  title = org_get_title file_path
+  dir_name = File.dirname(get_org_path file_path)
+  dir_name = dir_name == '.' ? '' : dir_name
+  url = CGI.escape(File.basename(file_path, '.*'))
+  # Get the post.
+  post = Post.find_by(url: url, where: where)
+  return if not post
+  # Reset content and title.
+  post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
+  post.title = title
+  # TODO add more rescues for different errors 
 end
 
 def add_org_to_db(file_path)
@@ -54,19 +68,15 @@ def add_org_to_db(file_path)
   dir_name = File.dirname(get_org_path file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
-  begin
-    post = Post.where(url: url, where: where).sole
-    # Reset content and title.
-    post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
-    post.title = title
+  # Update org if it exists.
+  post = Post.find_by(url: url, where: dir_name)
+  return update_org_db(post) if post
   # TODO add more rescues for different errors 
-  rescue => error
-    # File does not exist, create it.
-    Post.new(title: title, description: '',
-             where: dir_name,
-             url: url,
-             body: Orgmode::Parser.new(File.read(file_path)).to_html).save 
-  end
+  # File does not exist, create it.
+  Post.new(title: title, description: '',
+           where: dir_name,
+           url: url,
+           body: Orgmode::Parser.new(File.read(file_path)).to_html).save 
 end
 
 module Site
@@ -82,7 +92,7 @@ module Site
     config.after_initialize do
       # Do change in orgs file.
       listener = Listen.to(org_dir) do |modified, added, removed|
-        modified.each { |x| add_org_to_db x }
+        modified.each { |x| update_org_db x }
         added.each { |x| add_org_to_db x }
         removed.each { |x| remove_org_from_db x }
       end

@@ -11,16 +11,9 @@ export function initBackground() {
     newCanvas.style['left'] = '0';
     newCanvas.style['right'] = '0';
     newCanvas.style['top'] = '0';
-    newCanvas.style['z-index' as any] = '-1';
+    newCanvas.style.zIndex = '-100';
     newCanvas.width  = window.innerWidth;
     newCanvas.height = window.innerHeight;
-    document.body.style.backgroundColor = "black";
-
-    let tmpCanvas = document.createElement('canvas');
-    let tmpContext = tmpCanvas.getContext('2d');
-    tmpCanvas.width  = window.innerWidth;
-    tmpCanvas.height = window.innerHeight;
-    document.body.style.backgroundColor = "black";
 
     document.body.appendChild(newCanvas);
 

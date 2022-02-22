@@ -1,10 +1,22 @@
-<div class="twin">
-  <div style="tcontent">
-  </div>
-  <div id="content">
-    <hr class="prompt-break">
-    <span class="prompt1">ryan</span><span class="prompt2">@</span><span class="prompt3">themainframe</span><span class="prompt4"></span> <span>cat </span>
-    <div class="cat">
-    </div>
-  </div>
+<div class="ewin">
+  <h3>Navigation</h3>
+  <ul>
+    <li><a href="/posts">Posts</a></li>
+    <% @posts.each do |post| %>
+      <li>
+        <a href="/<%= post.url %>">
+          <%= post.title %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+</div>
+<div class="ewin">
+  <h3>Some cool peeps to check out.</h3>
+  
+  <ul>
+    <li><a href="https://kylemcd.xyz">My Friend Kyle's Blog</a></li>
+    <li>Xah Lee's Blog (G©©g£€ it, I will not link to it becasue no https)</li>
+    <li><a href="https://lukesmith.xyz">Luke Smith</a></li>
+  </ul>        
 </div>
