@@ -51,11 +51,13 @@ def update_org_db(file_path)
   dir_name = dir_name == '.' ? '' : dir_name
   url = CGI.escape(File.basename(file_path, '.*'))
   # Get the post.
-  post = Post.find_by(url: url, where: where)
+  post = Post.find_by(url: url, where: dir_name)
   return if not post
   # Reset content and title.
+  puts "Setting the post"
   post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
   post.title = title
+  post.save
   # TODO add more rescues for different errors 
 end
 
