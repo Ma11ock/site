@@ -86,8 +86,6 @@ module Site
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
-    # Handle 404's by myself
-    config.exceptions_app = self.routes
     config.public_file_server.enabled = true
 
     # Init the database

@@ -9,8 +9,4 @@ Rails.application.routes.draw do
   get '/esoteric/:url', to: 'posts#esoteric_show'
   # Front page posts
   get '/:url', to: 'posts#front_show'
-  # Errors.
-  get '/404', to: 'errors#not_found'
-  get '/500', to: 'errors#not_found'
-  get '/422', to: 'errors#not_found'
 end

@@ -9,12 +9,12 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = Post.find_by(where: 'posts', url: params[:url]) rescue not_found
+    (@post = Post.find_by(where: 'posts', url: params[:url])) or not_found
   end
 
   # Get "rolling" front page items
   def front_show
-    @post = Post.find_by(where: '', url: params[:url]) rescue not_found
+    (@post = Post.find_by(where: '', url: params[:url])) or not_found
     render 'show'
   end
 
@@ -24,7 +24,7 @@ class PostsController < ApplicationController
   end
 
   def esoteric_show
-    @post = Post.find_by(where: 'esoteric', url: params[:url]) rescue not_found
+    (@post = Post.find_by(where: 'esoteric', url: params[:url])) or not_found
     render 'show'
   end
 end
