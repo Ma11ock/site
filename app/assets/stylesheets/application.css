@@ -24,14 +24,14 @@ main {
 /* unvisited link */
 a:link {
   color: var(--fg-color1);
-  text-shadow: 0 0 3px var(--fg-color1);
+  text-shadow: 0 0 2px var(--fg-color1);
   text-decoration: none;
 }
 
 /* visited link */
 a:visited {
   color: var(--emph-color);
-  text-shadow: 0 0 3px var(--emph-color);
+  text-shadow: 0 0 2px var(--emph-color);
 }
 
 /* mouse over link */
@@ -42,21 +42,21 @@ a:hover, a:active {
 /* Mostly org titles. */
 h1 {
   color: var(--header-color);
-  text-shadow: 0 0 3px var(--header-color);
+  text-shadow: 0 0 2px var(--header-color);
 }
 
 h2 {
   margin: 0 auto;
   padding: 0;
   color: var(--header-color2);
-  text-shadow: 0 0 3px var(--header-color2);
+  text-shadow: 0 0 2px var(--header-color2);
 }
 
 h3 {
   margin: 0 auto;
   padding: 0;
   color: var(--fg-color1);
-  text-shadow: 0 0 3px var(--fg-color1);
+  text-shadow: 0 0 2px var(--fg-color1);
 }
 
 h4 {
@@ -64,7 +64,7 @@ h4 {
   margin: 0;
   margin-top: 0;
   color: var(--fg-color2);
-  text-shadow: 0 0 3px var(--fg-color2);
+  text-shadow: 0 0 2px var(--fg-color2);
   font-size: 0.8em;
 }
 
@@ -73,7 +73,7 @@ h5 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color3);
-  text-shadow: 0 0 3px var(--header-color3);
+  text-shadow: 0 0 2px var(--header-color3);
   font-size: 0.8em;
 }
 
@@ -82,7 +82,7 @@ h6 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color4);
-  text-shadow: 0 0 3px var(--header-color4);
+  text-shadow: 0 0 2px var(--header-color4);
   font-size: 0.8em;
 }
 nav {
@@ -128,7 +128,7 @@ p {
   margin-top: 2em;
   padding: 0;
   color: var(--fg-color);
-  text-shadow: 0 0 3px var(--fg-color);
+  text-shadow: 0 0 2px var(--fg-color);
 }
     
 body {
@@ -178,16 +178,16 @@ tr:first-child td {
 
 li {
   color: var(--fg-color);
-  text-shadow: 0 0 3px var(--fg-color);
+  text-shadow: 0 0 2px var(--fg-color);
 }
 
 th, td {
   margin: 0 auto;
   padding: 0;
-  text-shadow: 0 0 3px var(--fg-color);
+  text-shadow: 0 0 2px var(--fg-color);
 }
 
 th {
   color: var(--header-color2);
-  text-shadow: 0 0 3px var(--header-color2);
+  text-shadow: 0 0 2px var(--header-color2);
 }
