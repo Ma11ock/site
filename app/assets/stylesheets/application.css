@@ -19,19 +19,21 @@
 
 /* TODO fix nav bar width not jiving with window width. */
 main {
+  margin: auto;
+  width: 75%;
 }
 
 /* unvisited link */
 a:link {
   color: var(--fg-color1);
-  text-shadow: 0 0 2px var(--fg-color1);
+  text-shadow: 0 0 1px var(--fg-color1);
   text-decoration: none;
 }
 
 /* visited link */
 a:visited {
   color: var(--emph-color);
-  text-shadow: 0 0 2px var(--emph-color);
+  text-shadow: 0 0 1px var(--emph-color);
 }
 
 /* mouse over link */
@@ -42,21 +44,21 @@ a:hover, a:active {
 /* Mostly org titles. */
 h1 {
   color: var(--header-color);
-  text-shadow: 0 0 2px var(--header-color);
+  text-shadow: 0 0 1px var(--header-color);
 }
 
 h2 {
   margin: 0 auto;
   padding: 0;
   color: var(--header-color2);
-  text-shadow: 0 0 2px var(--header-color2);
+  text-shadow: 0 0 1px var(--header-color2);
 }
 
 h3 {
   margin: 0 auto;
   padding: 0;
   color: var(--fg-color1);
-  text-shadow: 0 0 2px var(--fg-color1);
+  text-shadow: 0 0 1px var(--fg-color1);
 }
 
 h4 {
@@ -64,7 +66,7 @@ h4 {
   margin: 0;
   margin-top: 0;
   color: var(--fg-color2);
-  text-shadow: 0 0 2px var(--fg-color2);
+  text-shadow: 0 0 1px var(--fg-color2);
   font-size: 0.8em;
 }
 
@@ -73,7 +75,7 @@ h5 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color3);
-  text-shadow: 0 0 2px var(--header-color3);
+  text-shadow: 0 0 1px var(--header-color3);
   font-size: 0.8em;
 }
 
@@ -82,15 +84,15 @@ h6 {
   margin: 0;
   margin-top: 0;
   color: var(--header-color4);
-  text-shadow: 0 0 2px var(--header-color4);
+  text-shadow: 0 0 1px var(--header-color4);
   font-size: 0.8em;
 }
+
 nav {
   text-align: center;
   clear: both;
   margin: auto;
   max-width: 75%;
-  background-color: rgba(41,44,45,0.9);
   border: 0.1em solid white;
 }
 
@@ -101,13 +103,22 @@ nav:hover {
 nav li {
   display: inline-block;
   list-style: none;
-  max-width: 7em;
   padding: 0.5em;
-  transition: transform 0.3s;
+  font-size: 1em;
 }
 
-nav li:hover {
+nav a {
+  display: inline-block;
+}
+nav a:hover {
   transform: scale(1.5);
+  transition: transform 0.3s;
+  text-decoration: underline;
+}
+
+nav img {
+  width: 1em;
+  float: left;
 }
 
 nav ul {
@@ -115,8 +126,73 @@ nav ul {
   margin: 0.5em;
 }
 
-nav img {
-  max-width: 4em;
+nav h4 {
+  display: inline-block;
+  font-size: 1em;
+}
+
+@media (min-width: 1200px) {
+  nav {
+    float: left;
+    width: 10%; 
+    position: fixed;
+    text-align: left;
+    font-size: large;
+  }
+  nav:before {
+    content: "Navigation";
+    text-align: center;
+    display: block;
+    font-size: 1vw;
+    color: violet;
+    text-decoration: underline;
+    margin: 0.5em;
+  }
+  nav li {
+    display: block;
+    margin: 0.5em auto;
+  } 
+  nav h4 {
+    display: inline-block;
+    font-size: 1em;
+  }
+  /* Tree view with UL inside a nav. */
+  nav ul, nav ul ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  } 
+  nav ul ul {
+    margin-left: 10px;
+  }
+  nav ul li a {
+    margin-bottom: 0.5em;
+  }
+  nav ul li {
+    margin: 0;
+    padding: 0 7px;
+    line-height: 20px;
+    color: #369;
+    font-weight: bold;
+    border-left:0.1em solid var(--fg-color);
+  }
+  nav ul li:last-child {
+    border-left: none;
+  }
+  nav ul li:before {
+    position:relative;
+    top:-0.3em;
+    height:1em;
+    width:12px;
+    color:white;
+    border-bottom:1px solid var(--fg-color);
+    content:"";
+    display:inline-block;
+    left:-7px;
+  }
+  nav ul li:last-child:before {
+    border-left:1px solid var(--fg-color);
+  }
 }
 
 .ewin {
@@ -128,10 +204,11 @@ p {
   margin-top: 2em;
   padding: 0;
   color: var(--fg-color);
-  text-shadow: 0 0 2px var(--fg-color);
+  text-shadow: 0 0 1px var(--fg-color);
 }
-    
+
 body {
+  font-size: 14pt;
   border: 1.5em solid transparent;
   border-image: url(/res/2008.webp) 19 12 round;
   padding: 0;
@@ -178,16 +255,17 @@ tr:first-child td {
 
 li {
   color: var(--fg-color);
-  text-shadow: 0 0 2px var(--fg-color);
+  text-shadow: 0 0 1px var(--fg-color);
 }
 
 th, td {
   margin: 0 auto;
   padding: 0;
-  text-shadow: 0 0 2px var(--fg-color);
+  text-shadow: 0 0 1px var(--fg-color);
 }
 
 th {
   color: var(--header-color2);
-  text-shadow: 0 0 2px var(--header-color2);
+  text-shadow: 0 0 1px var(--header-color2);
 }
+

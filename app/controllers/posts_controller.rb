@@ -27,4 +27,13 @@ class PostsController < ApplicationController
     (@post = Post.find_by(where: 'esoteric', url: params[:url])) or not_found
     render 'show'
   end
+
+  def blerbs
+    render 'blerbs'
+  end
+
+  def links
+    (@post = Post.find_by(where: 'link')) or not_found
+    render 'show'
+  end
 end

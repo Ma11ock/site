@@ -17,8 +17,9 @@
 </div>
 <div class="ewin">
   <h3>Navigation</h3>
+  <br/>
+  <a href="/posts">My blog Posts</a>
   <ul>
-    <li><a href="/posts">Posts</a></li>
     <% @posts.each do |post| %>
       <li>
         <a href="/<%= post.url %>">

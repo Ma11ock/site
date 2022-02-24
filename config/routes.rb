@@ -8,5 +8,8 @@ Rails.application.routes.draw do
   get '/esoteric', to: 'posts#esoteric'
   get '/esoteric/:url', to: 'posts#esoteric_show'
   # Front page posts
+  get '/blerbs', to: 'posts#blerbs'
+  get '/links', to: 'posts#links'
   get '/:url', to: 'posts#front_show'
+
 end
