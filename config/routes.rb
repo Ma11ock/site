@@ -4,7 +4,6 @@ Rails.application.routes.draw do
   # Error routes
   get '/404', to: 'errors#not_found'
   get '/500', to: 'errors#internal_server'
-  get '/422', to: 'errors#unprocessable'
   # Blog.
   get '/posts', to: 'posts#blog_index'
   get '/posts/:url', to: 'posts#show'
