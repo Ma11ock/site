@@ -41,6 +41,11 @@ def remove_org_from_db(file_path)
   post.destroy if post
 end
 
+def compile_org_file(file_path_org)
+  # Generate the HTML file.
+  system("emacs -q --script #{Rails.root.join('app', 'publish.el')} #{file_path_org}")
+end
+
 def update_org_db(file_path)
   # Check to see if we're actually getting an org file.
   return if File.extname(file_path) != '.org'
@@ -49,16 +54,18 @@ def update_org_db(file_path)
   title = org_get_title file_path
   dir_name = File.dirname(get_org_path file_path)
   dir_name = dir_name == '.' ? '' : dir_name
-  url = CGI.escape(File.basename(file_path, '.*'))
+  output_file_path = File.basename(file_path, '.org')
+  url = CGI.escape(output_file_path)
   # Get the post.
   post = Post.find_by(url: url, where: dir_name)
   return if not post
   # Reset content and title.
-  puts "Setting the post"
-  post.body = Orgmode::Parser.new(File.read(file_path)).to_html 
+  puts "Setting post new body page"
+
+  compile_org_file file_path
   post.title = title
   post.save
-  # TODO add more rescues for different errors 
+  # TODO add more rescues for different errors
 end
 
 def add_org_to_db(file_path)
@@ -69,16 +76,22 @@ def add_org_to_db(file_path)
   title = org_get_title file_path
   dir_name = File.dirname(get_org_path file_path)
   dir_name = dir_name == '.' ? '' : dir_name
-  url = CGI.escape(File.basename(file_path, '.*'))
+
+  output_file_path = File.basename(file_path, '.org')
+  url = CGI.escape(output_file_path)
   # Update org if it exists.
   post = Post.find_by(url: url, where: dir_name)
   return update_org_db(post) if post
-  # TODO add more rescues for different errors 
+  # TODO add more rescues for different errors
   # File does not exist, create it.
+
+  compile_org_file file_path
+
+  # TODO description.
   Post.new(title: title, description: '',
            where: dir_name,
            url: url,
-           body: Orgmode::Parser.new(File.read(file_path)).to_html).save 
+           body: output_file_path + '.html').save
 end
 
 module Site

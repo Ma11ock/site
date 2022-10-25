@@ -13,7 +13,27 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <meta name="author" content="Ryan Jeffrey" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon32x32.ico">
+    <script type="text/x-mathjax-config">
+     MathJax.Hub.Config({
+       displayAlign: "center",
+       displayIndent: "0em",
+
+       "HTML-CSS": { scale: 100,
+                     linebreaks: { automatic: "false" },
+                     webFont: "TeX"
+       },
+       SVG: {scale: 100,
+             linebreaks: { automatic: "false" },
+             font: "TeX"},
+       NativeMML: {scale: 100},
+       TeX: { equationNumbers: {autoNumber: "AMS"},
+              MultLineWidth: "85%",
+              TagSide: "right",
+              TagIndent: ".8em"
+       }
+     });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>   <link rel="shortcut icon" type="image/x-icon" href="favicon32x32.ico">
   </head>
   <body>
     <nav>
