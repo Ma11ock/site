@@ -1,12 +1,24 @@
 <div class="ewin">
-  <ul>
-    <li><a href="/">..</a></li>
-    <% @posts.each do |post| %>
-      <li>
-        <a href="/posts/<%= post.url %>">
-          <%= post.title %>
-        </a>
-      </li>
+  <table>
+    <tr>
+      <th><a href="/">Name</a></th>
+      <th>Created</th>
+      <th>Last Updated</th>
+    </tr>
+    <% @posts.sort_by(&:created_at).reverse.each do |post| %>
+      <tr>
+        <th>
+          <a href="/posts/<%= post.url %>">
+            <%= post.title %>
+          </a>
+        </th>
+        <th>
+          <%= post.created_at.strftime("%Y %b %d") %>
+        </th>
+        <th>
+          <%= post.updated_at.strftime("%Y %b %d") %>
+        </th>
+      </tr>
     <% end %>
-  </ul>
+  </table>
 </div>
