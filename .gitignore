@@ -364,4 +364,23 @@ build-iPhoneSimulator/
 /public/favicon32x32.ico
 # End of https://www.toptal.com/developers/gitignore/api/yarn
 
-/app/orgs
+/app/orgsnode_modules/
+public/js
+
+/target
+/checkouts
+/src/gen
+
+pom.xml
+pom.xml.asc
+*.iml
+*.jar
+*.log
+.shadow-cljs
+.idea
+.lein-*
+.nrepl-*
+.DS_Store
+
+.hgignore
+.hg/
