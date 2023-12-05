@@ -1,0 +1,29 @@
+main {
+  display: inline-block;
+  height: 90vh;
+  overflow-y: scroll;
+  float: left;
+  padding: 5px;
+  width: 40%;
+  margin: 5%;
+}
+
+#left {
+  width: 15%;
+  overflow-y: scroll;
+  float: left;
+  display: inline-block;
+  height: 90vh;
+  margin: 5%;
+}
+
+#right {
+  overflow-y: scroll;
+  width: 15%;
+  float: right;
+  display: inline-block;
+  position: absolute;
+  height: 90vh;
+  margin: 5%;
+  text-align: center !important;
+}

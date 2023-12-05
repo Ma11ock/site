@@ -12,7 +12,8 @@
     (.engine app "handlebars" (engine))
     (.set app "view engine", "handlebars")
     (.get app "/" (fn [req res] (.render res "home")))
-    (.listen app 3000 (fn [] (println "Example app listening on port 3000!")))))
+    (.use app (.static express "public"))
+    (.listen app 3000 (fn [] (println "Listening on port 3000...")))))
 
 (defn start! []
   ;; called by main and after reloading code
